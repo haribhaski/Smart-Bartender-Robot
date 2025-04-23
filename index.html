@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Bartender Order System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        select, button {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #orderList {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .order-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Robot Bartender Order System</h1>
+        <form id="orderForm">
+            <label for="table">Table Number:</label>
+            <select id="table" name="table">
+                <option value="1">Table 1</option>
+                <option value="2">Table 2</option>
+                <option value="3">Table 3</option>
+                <option value="4">Table 4</option>
+            </select>
+            <label for="juice">Juice Type:</label>
+            <select id="juice" name="juice">
+                <option value="orange">Orange</option>
+                <option value="apple">Apple</option>
+                <option value="grape">Grape</option>
+            </select>
+            <button type="submit">Place Order</button>
+        </form>
+        <div id="orderList">
+            <h2>Current Orders</h2>
+            <div id="orders"></div>
+        </div>
+    </div>
+
+    <script>
+        // Load existing orders when the page loads
+        document.addEventListener('DOMContentLoaded', loadOrders);
+
+        // Handle form submission
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const table = document.getElementById('table').value;
+            const juice = document.getElementById('juice').value;
+            const newOrder = { table: parseInt(table), juice: juice };
+
+            // Send order to server to update data.json
+            fetch('/add_order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newOrder),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Order placed successfully!');
+                    loadOrders(); // Refresh order list
+                } else {
+                    alert('Failed to place order.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error placing order.');
+            });
+        });
+
+        // Function to load and display orders
+        function loadOrders() {
+            fetch('/data.json')
+                .then(response => response.json())
+                .then(data => {
+                    const ordersDiv = document.getElementById('orders');
+                    ordersDiv.innerHTML = ''; // Clear current list
+                    if (data.orders && data.orders.length > 0) {
+                        data.orders.forEach(order => {
+                            const orderItem = document.createElement('div');
+                            orderItem.className = 'order-item';
+                            orderItem.textContent = `Table ${order.table}: ${order.juice}`;
+                            ordersDiv.appendChild(orderItem);
+                        });
+                    } else {
+                        ordersDiv.textContent = 'No orders yet.';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading orders:', error);
+                    document.getElementById('orders').textContent = 'Error loading orders.';
+                });
+        }
+    </script>
+</body>
+</html>
