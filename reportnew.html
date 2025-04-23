@@ -1,0 +1,2413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="Comprehensive academic report on an autonomous robotic serving system using ADMM and LQR" name="description">
+    <meta content="Amrita Vishwa Vidyapeetham" name="author">
+    
+    <meta name="experiment-short-name" content="robot-path-finding-admm">
+    <meta name="developer-institute" content="Amrita Vishwa Vidyapeetham">
+    <meta name="learning-unit" content="Robotics and Path Planning">
+    <meta name="task-name" content="Simulation and Implementation">
+    
+    <title>Comprehensive Project Report: Autonomous Robotic Serving System with ADMM-Based Path Planning</title>
+    <link rel="shortcut icon" href="./assets/images/favicon.ico">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;700&family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+      :root {
+        --primary-navy: #1c2526;
+        --secondary-blue: #2e4057;
+        --light-ivory: #f9f7f3;
+        --dark-charcoal: #2b2d42;
+        --accent-maroon: #8d5524;
+        --white: #ffffff;
+      }
+      
+      body {
+        font-family: 'Source Serif Pro', serif;
+        color: var(--dark-charcoal);
+        line-height: 1.9;
+        background-color: var(--light-ivory);
+      }
+      
+      h1, h2, h3, h4 {
+        font-family: 'EB Garamond', serif;
+        color: var(--primary-navy);
+      }
+      
+      h1 {
+        font-size: 2.8rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 3px solid var(--accent-maroon);
+        padding-bottom: 0.5rem;
+      }
+      
+      h2 {
+        font-size: 2rem;
+        margin: 2.5rem 0 1.2rem;
+      }
+      
+      h3 {
+        font-size: 1.6rem;
+        margin: 1.8rem 0 1rem;
+      }
+      
+      h4 {
+        font-size: 1.3rem;
+        color: var(--secondary-blue);
+      }
+      
+      .navbar {
+        background-color: var(--primary-navy) !important;
+        padding: 1.5rem;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+      }
+      
+      .navbar-brand {
+        font-family: 'EB Garamond', serif;
+        font-size: 1.8rem;
+        color: var(--white) !important;
+      }
+      
+      /* Line 95-99: Change the sidebar-nav class */
+      .sidebar-nav {
+            background-color: var(--white);
+            border-right: 2px solid #e0e0e0;
+            height: 100%;  /* Change from 100vh to 100% */
+            position: sticky;
+            top: 0;
+            padding: 2.5rem;
+            box-shadow: 3px 0 8px rgba(0,0,0,0.08);
+            overflow-y: auto;  /* Add this line to enable scrolling */
+            max-height: calc(100vh - 20px);  /* Add this line to prevent overflow */
+        }
+      
+      .toc-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 1.5rem;
+        color: var(--primary-navy);
+        border-bottom: 2px solid var(--accent-maroon);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+      }
+      
+      /* Line 111-124: Modify the chapter-link and subchapter-link classes */
+        .chapter-link {
+            display: block;
+            padding: 0.6rem 1rem;
+            color: var(--dark-charcoal);
+            text-decoration: none;
+            border-left: 4px solid transparent;
+            margin: 0.4rem 0;
+            border-radius: 4px;
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
+        }
+
+        .subchapter-link {
+            padding-left: 2rem;
+            font-size: 0.95rem;
+            color: var(--dark-charcoal);
+            text-decoration: none;
+            display: block;  /* Add this line to ensure proper block display */
+            margin: 0.3rem 0;  /* Add this to standardize margins */
+        }
+
+        .subsubchapter-link {
+            padding-left: 3rem;
+            font-size: 0.9rem;
+            color: var(--dark-charcoal);
+            text-decoration: none;
+            display: block;  /* Add this line to ensure proper block display */
+            margin: 0.3rem 0;  /* Add this to standardize margins */
+        }
+      
+      .chapter-link:hover, .chapter-link.active {
+        background-color: var(--light-ivory);
+        border-left-color: var(--accent-maroon);
+        color: var(--primary-navy);
+        font-weight: 600;
+      }
+      
+      .page-title {
+        color: var(--primary-navy);
+        font-size: 1.4rem;
+        font-weight: 700;
+        padding: 1.2rem 0;
+        border-bottom: 1px solid var(--accent-maroon);
+      }
+      .highlight {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-left: 4px solid #3498db;
+        margin-bottom: 15px;
+    }
+      .course-info {
+        color: var(--dark-charcoal);
+        font-size: 0.95rem;
+        padding: 1.2rem 0;
+      }
+      
+      .vlabs-footer {
+        background-color: var(--primary-navy) !important;
+        padding: 2.5rem;
+        color: var(--white);
+      }
+      
+      .content-section {
+        background-color: var(--white);
+        padding: 2.5rem;
+        border-radius: 10px;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      }
+      
+      .video-container {
+        margin: 2.5rem 0;
+        position: relative;
+        width: 100%;
+        padding-top: 56.25%;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+      }
+      
+      .video-container video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+      
+      .highlight-card {
+        background-color: var(--light-ivory);
+        border-radius: 8px;
+        padding: 1.8rem;
+        margin: 1.2rem 0.6rem;
+        flex: 0 0 calc(33.33% - 1.2rem);
+        border-left: 5px solid var(--accent-maroon);
+        transition: transform 0.3s ease;
+      }
+      
+      .highlight-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+      }
+      
+      .highlight-card h4 {
+        margin-bottom: 0.6rem;
+      }
+      
+      .highlight-card p {
+        font-size: 0.95rem;
+        margin: 0;
+      }
+      
+      .simulation-highlights {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin: 2.5rem 0;
+      }
+      
+      .latex-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 2rem 0;
+        font-size: 0.95rem;
+      }
+      
+      .latex-table th, .latex-table td {
+        border: 1px solid var(--dark-charcoal);
+        padding: 1rem;
+        text-align: left;
+      }
+      
+      .latex-table th {
+        background-color: var(--primary-navy);
+        color: var(--white);
+        font-family: 'EB Garamond', serif;
+        font-weight: 700;
+      }
+      
+      .latex-table tr:nth-child(even) {
+        background-color: var(--light-ivory);
+      }
+      
+      hr.divider {
+        border: 0;
+        height: 2px;
+        background: var(--accent-maroon);
+        margin: 3rem 0;
+      }
+      
+      .scroll-indicator {
+        text-align: center;
+        margin: 2.5rem auto;
+        font-size: 1.1rem;
+        color: var(--secondary-blue);
+        animation: bounce 2s infinite;
+      }
+      
+      @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-12px); }
+        60% { transform: translateY(-6px); }
+      }
+      
+      .equation {
+        margin: 1.5rem 0;
+        padding: 1rem;
+        background-color: var(--light-ivory);
+        border-left: 4px solid var(--accent-maroon);
+      }
+      
+      .katex-display {
+        font-size: 1.1rem;
+      }
+      @media (max-width: 768px) {
+
+        .latex-table {
+          width: 100%; /* Ensure table is exactly container width */
+          font-size: 0.55rem; /* Smaller font in tables */
+          margin: 1.5rem 0; /* Reduced margin */
+          display: block; /* Forces better container control */
+          overflow-x: auto; /* Allows horizontal scrolling for wide tables */
+          -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
+        }
+        
+        .latex-table th, 
+        .latex-table td {
+          padding: 0.5rem; /* Further reduced padding */
+          min-width: 80px; /* Prevent cells from becoming too narrow */
+          white-space: normal; /* Allow text wrapping in cells */
+          word-break: break-word; /* Break long words if needed */
+        }
+        
+        .latex-table th {
+          font-size: 0.8rem;
+        }
+      }
+      @media (max-width: 768px) {
+        /* General container fixes */
+        .vlabs-page-content {
+          padding: 1rem !important; /* Reduce padding to maximize available space */
+          overflow-x: hidden; /* Prevent horizontal overflow at page level */
+        }
+        
+        .content-section {
+          padding: 1rem; /* Reduced padding */
+          margin-bottom: 1.5rem;
+          width: 100%;
+          max-width: 100%;
+          overflow-x: hidden; /* Prevent horizontal overflow */
+          box-sizing: border-box; /* Include padding in width calculation */
+        }
+        
+        /* Fix for all potential overflowing elements */
+        p, h1, h2, h3, h4, ul, ol, pre, table, .equation {
+          max-width: 100%;
+          word-wrap: break-word; /* Break long words */
+          overflow-wrap: break-word;
+        }
+        
+        /* Code blocks and pre elements */
+        pre {
+          white-space: pre-wrap; /* Allow wrapping of code */
+          word-break: break-all; /* Break anywhere if needed */
+          overflow-x: auto; /* Add scrollbar if still needed */
+          max-width: 100%;
+          font-size: 0.8rem; /* Smaller font for code */
+        }
+        /* Fix for images and videos */
+        img, video {
+          max-width: 100% !important;
+          height: auto !important;
+        }
+        
+        .video-container {
+          max-width: 100%;
+          margin: 1.5rem 0;
+        }
+        
+        /* Adjust other elements */
+        .highlight-card {
+          flex: 0 0 100%;
+          margin: 0.8rem 0;
+          padding: 1rem;
+        }
+        
+        /* Smaller navbar */
+        .navbar {
+          padding: 0.5rem !important;
+        }
+        
+        .navbar-brand {
+          font-size: 1.1rem !important;
+          line-height: 1.2;
+        }
+        
+        /* Typography adjustments */
+        body {
+          font-size: 0.9rem;
+          line-height: 1.6;
+        }
+        
+        h1 {
+          font-size: 1.5rem;
+          margin-bottom: 1rem;
+          padding-bottom: 0.4rem;
+        }
+        
+        h2 {
+          font-size: 1.2rem;
+          margin: 1.5rem 0 0.8rem;
+        }
+        
+        h3 {
+          font-size: 1.1rem;
+          margin: 1rem 0 0.6rem;
+        }
+        
+        h4 {
+          font-size: 1.0rem;
+        }
+        .container-fluid{
+            margin: 0;
+            padding: 0;
+        }
+      }
+      @media (max-width: 768px) {        
+        .equation {
+          overflow-x: auto; /* Add horizontal scrolling for overflow */
+          max-width: 100%; /* Ensure it doesn't exceed container width */
+          font-size: 0.85rem; /* Slightly smaller font size for equations */
+          padding: 0.7rem; /* Reduced padding */
+        }
+        
+        .katex-display {
+          font-size: 0.9rem !important; /* Smaller font size for displayed equations */
+          overflow-x: auto; /* Enable horizontal scrolling if needed */
+          overflow-y: hidden; /* Prevent vertical scrolling */
+          white-space: nowrap; /* Keep equations on one line */
+        }
+        
+        /* If needed, this helps with inline math */
+        .katex {
+          font-size: 0.9em !important; /* Smaller inline equations */
+        }
+      }
+      @media (max-width: 768px) {
+        .highlight-card {
+          flex: 0 0 100%;
+          margin: 1rem 0;
+        }
+        .sidebar-nav {
+          height: auto;
+          position: static; /* Change from relative to static */
+          max-height: none; /* Remove fixed height on mobile */
+          overflow-y: visible; /* Show all content */
+        }
+        .content-section {
+          padding: 1.2rem; /* Reduced from 1.8rem */
+          margin-bottom: 1.5rem; /* Reduced margin between content sections */
+        }
+        
+        /* Reduce navbar size on mobile */
+        .navbar {
+          padding: 0.7rem !important; /* Overrides the default padding */
+        }
+        .navbar-brand {
+          font-size: 1.2rem !important; /* Makes the header text smaller */
+          white-space: normal; /* Allow text to wrap */
+          line-height: 1.3; /* Better line height for wrapped text */
+        }
+        .vlabs-header {
+          margin-bottom: 0.5rem;
+        }
+        .math {
+            font-style: italic;
+            color: #2c3e50;
+            margin: 10px 0;
+            text-align: center;
+        }
+        body {
+          font-size: 0.9rem; /* Smaller base font size */
+          line-height: 1.7; /* Slightly reduced line height */
+        }
+        
+        h1 {
+          font-size: 2rem; /* Reduced from 2.8rem */
+          margin-bottom: 1rem; /* Smaller margin */
+        }
+        
+        h2 {
+          font-size: 1.5rem; /* Reduced from 2rem */
+          margin: 1.8rem 0 0.8rem; /* Reduced margins */
+        }
+        
+        h3 {
+          font-size: 1.3rem; /* Reduced from 1.6rem */
+          margin: 1.2rem 0 0.7rem; /* Reduced margins */
+        }
+        
+        .latex-table th, .latex-table td {
+          padding: 0.6rem; /* Reduced from 1rem */
+        }
+        
+        /* Reduce space between TOC items */
+        .chapter-link, .subchapter-link, .subsubchapter-link {
+          margin: 0.2rem 0; /* Reduced from 0.4rem/0.3rem */
+          padding: 0.4rem 1rem; /* Reduced padding */
+        }
+      }
+    
+    </style>
+</head>
+
+<body class="container-fluid vlabs-page d-flex flex-column justify-content-between">
+    <header class="vlabs-header sticky-top">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid">
+                <span class="navbar-brand">Robot Bartender: Autonomous Robotic Serving System with ADMM-Based Path Planning</span>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container-fluid flex-fill d-flex flex-column vlabs-page-main">
+        <div class="row flex-grow-1 d-flex flex-nowrap flex-column flex-lg-row">
+            <div class="col-lg-3 col-xl-2 sidebar-nav d-none d-lg-block">
+                <div class="toc-title">Table of Contents</div>
+                <nav>
+                    <a href="#abstract" class="chapter-link">Abstract</a>
+                    <a href="#introduction" class="chapter-link">1. Introduction</a>
+                    <a href="#introduction-background" class="subchapter-link">1.1 Background</a>
+                    <a href="#introduction-objectives" class="subchapter-link">1.2 Objectives</a>
+                    <a href="#introduction-scope" class="subchapter-link">1.3 Scope</a>
+                    <a href="#problem-statement" class="chapter-link">2. Problem Statement</a>
+                    <a href="#problem-requirements" class="subchapter-link">2.1 Functional Requirements</a>
+                    <a href="#problem-constraints" class="subchapter-link">2.2 Constraints</a>
+                    <a href="#literature-review" class="chapter-link">3. Literature Review</a>
+                    <a href="#literature-path-planning" class="subchapter-link">3.1 Path Planning Techniques</a>
+                    <a href="#literature-control" class="subchapter-link">3.2 Control Systems</a>
+                    <a href="#literature-simulation" class="subchapter-link">3.3 Simulation Environments</a>
+                    <a href="#mathematical-foundations" class="chapter-link">4. Mathematical Foundations</a>
+                    <a href="#math-admm" class="subchapter-link">4.1 ADMM for Path Planning</a>
+                    <a href="#math-admm-formulation" class="subsubchapter-link">4.1.1 Problem Formulation</a>
+                    <a href="#math-admm-algorithm" class="subsubchapter-link">4.1.2 Algorithm Details</a>
+                    <a href="#math-lqr" class="subchapter-link">4.2 LQR for Stability Control</a>
+                    <a href="#math-lqr-formulation" class="subsubchapter-link">4.2.1 System Dynamics</a>
+                    <a href="#math-lqr-design" class="subsubchapter-link">4.2.2 Controller Design</a>
+                    <a href="#methodology" class="chapter-link">5. Methodology</a>
+                    <a href="#methodology-path-planning" class="subchapter-link">5.1 Path Planning Module</a>
+                    <a href="#methodology-control" class="subchapter-link">5.2 Stability Control Module</a>
+                    <a href="#methodology-juice" class="subchapter-link">5.3 Juice Particle System</a>
+                    <a href="#methodology-state-machine" class="subchapter-link">5.4 Finite State Machine</a>
+                    <a href="#methodology-obstacle" class="subchapter-link">5.5 Obstacle Detection</a>
+                    <a href="#implementation" class="chapter-link">6. System Implementation</a>
+                    <a href="#implementation-components" class="subchapter-link">6.1 System Components</a>
+                    <a href="#implementation-environment" class="subchapter-link">6.2 Simulation Environment</a>
+                    <a href="#implementation-workflow" class="subchapter-link">6.3 Operational Workflow</a>
+                    <a href="#results" class="chapter-link">7. Results and Discussion</a>
+                    <a href="#results-performance" class="subchapter-link">7.1 Performance Metrics</a>
+                    <a href="#results-analysis" class="subchapter-link">7.2 Qualitative Analysis</a>
+                    <a href="#results-comparison" class="subchapter-link">7.3 Comparative Evaluation</a>
+                    <a href="#challenges" class="chapter-link">8. Challenges and Limitations</a>
+                    <a href="#challenges-technical" class="subchapter-link">8.1 Technical Challenges</a>
+                    <a href="#challenges-practical" class="subchapter-link">8.2 Practical Limitations</a>
+                    <a href="#conclusion" class="chapter-link">9. Conclusion and Future Work</a>
+                    <a href="#conclusion-summary" class="subchapter-link">9.1 Summary of Findings</a>
+                    <a href="#conclusion-future" class="subchapter-link">9.2 Future Directions</a>
+                    <a href="#references" class="chapter-link">10. References</a>
+                    <a href="#appendices" class="chapter-link">11. Appendices</a>
+                    <a href="#appendix-parameters" class="subchapter-link">11.1 Simulation Parameters</a>
+                    <a href="#appendix-code" class="subchapter-link">11.2 Code Snippets</a>
+                </nav>
+                <div class="course-info">
+                    <strong>Courses:</strong><br>
+                    22MAT230: Mathematics for Computing<br>
+                    22AIE214: Introduction to AI & Robotics<br>
+                    <strong>Institution:</strong> Amrita Vishwa Vidyapeetham
+                </div>
+            </div>
+
+            <div class="col-lg-9 col-xl-10 vlabs-page-content px-5 py-5 flex-grow-1">
+                <div class="content-section text-center">
+                    <h1>Robot Bartender : Autonomous Robotic Serving System with ADMM-Based Path Planning</h1>
+                    <p class="lead">Project report for Mathematics for Computing and Introduction to AI & Robotics</p>
+                    <p>Group 5 <br>
+                        Abhishek Ramesh - 23011<br>
+                        Hariharan Bhaskaran - 23030<br>
+                        Jeevan Kumar L - 23032<br>
+                        Krish S - 23040<br>
+                    </p>
+                </div>
+
+                <div class="content-section">
+                    <h1 id="Abstract">1. Abstract</h1>
+                    <p>Autonomous robotic systems are revolutionizing service industries by enhancing operational efficiency and reducing labour dependency in tasks like beverage delivery. 
+                        This project introduces an autonomous juice delivery robot simulated in PyBullet, designed to navigate a restaurant environment, deliver juice to customer tables, and maintain stability to prevent spillage. 
+                        The system utilizes an R2D2-inspired differential-drive robot, integrating an ADMM-based path planner with cubic spline smoothing for collision-free navigation, an LQR controller for glass stabilization, and a Flask-based web dashboard for streamlined order management. 
+                        A finite state machine orchestrates tasks within a 10x10m workspace containing tables, a juice counter, and static obstacles. The implementation achieves collision-free navigation with 15 path replans across waypoints, a target accuracy of 0.1 m, and an average path smoothness of 0.0143 m. 
+                        It attains a 100% order delivery success rate with an average delivery time of 6.37 seconds. These results underscore the system's precision, reliability, and efficiency, highlighting its potential to optimize beverage service in dynamic settings while ensuring consistent service quality.</p>
+                </div>
+
+                <div class="content-section">
+                    <h1 id="introduction">2. Introduction</h1>
+                    <h2 id="introduction-background">2.1 Background</h2>
+                    <p>The restaurant industry is one of the most vibrant and dynamic sectors in the global economy. From small family-owned cafes to large-scale fine dining establishments, restaurants serve millions of customers daily, offering not just food and beverages but also a carefully curated experience. At the heart of this industry lies a delicate balance between service efficiency, customer satisfaction, and operational cost. To maintain this balance, restaurants rely heavily on human resources—particularly waitstaff—who are responsible for orchestrating the dining experience from the moment a customer enters the establishment to the point they leave.
+
+                        Waitstaff are typically assigned a range of duties that span order taking, communication with the kitchen or bar, food and beverage delivery, customer interaction, and table management. Their role is crucial in maintaining the flow of operations and ensuring each guest receives prompt and accurate service. However, this reliance on manual labor comes with a significant cost. Labor expenses are often one of the largest operating costs for restaurants, and hiring, training, and retaining skilled staff continues to be a challenge—especially in regions experiencing labor shortages or high turnover rates.
+                        
+                        Beyond financial implications, human-operated service models also face performance inconsistencies. During peak hours, for example, waitstaff may become overwhelmed, leading to delays in order taking and delivery, miscommunication with the kitchen, and occasional errors in serving the correct items. These seemingly small issues can accumulate and lead to a decline in customer satisfaction. Among the services most affected by these inefficiencies is beverage delivery, particularly for drinks like juice, which require both timely preparation and careful handling.
+                        Customer experience can be negatively impacted by inconsistent service. Variations in staff performance can lead to inconsistent service quality, affecting customer satisfaction. Wait times are another issue. High demand can overwhelm staff, causing longer wait times for customers to receive their orders. These challenges highlight the need for a more efficient, automated solution to streamline beverage delivery while maintaining or improving service quality.
+                        <br><br>Juice service, though often overlooked, is a time-sensitive and detail-oriented task. It involves taking accurate orders (with options for specific flavors or custom mixes), retrieving the drinks once prepared, and navigating through a potentially crowded dining floor to deliver them. The risk of spillage, delivery delays, or wrong orders is high, especially when human staff are multitasking under pressure. In such environments, repetitive and routine tasks like juice delivery can be prime candidates for automation.
+                        
+                        This is where robotics and automation offer a transformative potential. By delegating repetitive service tasks to autonomous systems, restaurants can reduce human workload, improve service consistency, and focus staff efforts on more personalized and complex interactions. In this project, we aim to explore a robotic solution that automates the juice-serving process within a simulated restaurant environment. The solution is designed to handle everything from interpreting juice orders to navigating the restaurant layout and delivering drinks to the correct tables.
+                        
+                        <br><br> Using a robotic platform and a simulation environment such as PyBullet, the system is developed to interpret paths, avoid obstacles, and optimize delivery routes using advanced path planning techniques. The robot not only follows a calculated path to deliver the beverage but also dynamically adjusts its trajectory to account for changes in the environment, such as moving obstacles or customer behavior. By integrating intelligent control strategies such as LQR (Linear Quadratic Regulator) or ADMM (Alternating Direction Method of Multipliers), we ensure that the robot moves efficiently, safely, and reliably.
+                        
+                        Through this project, we present a practical demonstration of how robotics can streamline one of the most basic but essential services in hospitality—juice delivery—by blending smart automation with robust simulation, paving the way for future advancements in restaurant service automation.</p>                 
+                    <h2 id="introduction-objectives">2.2 Objectives</h2>
+                    <p>The primary objective of this project is to simulate and evaluate the path planning and control of a robotic arm using the PyBullet physics engine. The project aims to construct a realistic robotic simulation environment where a fixed-base manipulator performs motion along a predefined trajectory. This involves accurately modeling the robot’s kinematics and dynamics and ensuring that it follows the desired path with minimal error and smooth execution. To achieve this, a control framework is developed that not only guides the robot through the waypoints of the trajectory but also adjusts the control signals dynamically based on the current state of the robot. One of the core aspects of this control system is the incorporation of optimization-based techniques, particularly methods like the Alternating Direction Method of Multipliers (ADMM) or the Linear Quadratic Regulator (LQR), which are designed to improve the stability and convergence of the robot's motion. These methods help ensure that the robot responds appropriately to changes in desired trajectories, avoids abrupt or jerky movements, and maintains joint and velocity constraints. By embedding such techniques within the simulation, the project explores how advanced control strategies can be practically implemented and tested in a virtual environment. The performance of the control system is evaluated through various metrics including trajectory tracking error, stability, and responsiveness, all visualized and analyzed through PyBullet’s real-time simulation capabilities. Ultimately, this project serves to bridge the theoretical principles of optimal control with practical robotic motion planning, offering valuable insights into the effectiveness and robustness of optimization-driven control strategies in simulated environments. </p>
+                    <h2 id="introduction-scope">2.3 Scope of the project</h2>
+                        <p>This project focuses on developing a simulated robotic system for autonomous juice delivery in a restaurant environment. The core components of the system include order interpretation, path planning, obstacle avoidance, and trajectory-based delivery using a robotic platform. The implementation is carried out within the PyBullet simulation environment, enabling realistic physics-based interaction and testing. The robot is designed to interpret delivery coordinates, navigate around static and dynamic obstacles, and reach the designated tables accurately. The system also integrates control strategies such as LQR or ADMM to optimize motion smoothness and stability. However, the scope of the project is limited to simulation and does not involve hardware implementation or real-world deployment. Additionally, complex human-robot interaction, voice or gesture-based input, and multi-robot coordination are outside the scope of this work. The project primarily serves as a proof of concept for autonomous beverage delivery in structured hospitality settings.</p>
+                        <p>The implemented solution focuses on a simulated environment using an R2D2-like robot model. This solution aims to demonstrate the feasibility of automating beverage delivery, reducing labour costs, improving operational efficiency, and ensuring consistent service quality in a controlled simulation environment.</p>
+                </div>
+
+                <div class="content-section">
+                    <h1 id="problem-statement">3. Problem Statement</h1>
+                    <p>In dynamic and constrained environments, robotic arms are expected to perform precise path planning and control to execute tasks such as pick-and-place, assembly, or inspection. Ensuring accurate motion along a planned trajectory while respecting joint limits, avoiding obstacles, and maintaining smooth operation is a challenging task. Traditional approaches may not generalize well to different configurations or respond effectively to changes in the environment. The need arises for a simulation framework to test and evaluate advanced control algorithms like LQR or ADMM in a realistic setting.</p>
+                    <h2 id="problem-requirements">3.1 Functional Requirements and Constraints</h2>
+                    <p>The proposed robotic juice delivery system is designed to meet several essential functional requirements to operate effectively within a restaurant environment. First, it must be capable of autonomously navigating through spaces that include both static obstacles, such as tables and walls, and dynamic obstacles like moving people or other robots. It should implement a path planning algorithm that identifies optimal routes, aiming to minimize travel time and reduce energy consumption. Additionally, the robot must be able to transport juice-filled containers stably, ensuring smooth motion to prevent spillage. Another key functionality is the ability to manage customer orders through a queue system, delivering drinks in the correct order with high accuracy.
+                    <br><br> While fulfilling these requirements, the system must also operate under several constraints. The robot’s motion should respect joint limits and dynamic constraints to avoid mechanical stress or failure. The simulation must accurately model physics to realistically replicate potential collisions or instabilities. Moreover, real-time responsiveness is a critical constraint, as delays in obstacle detection or trajectory updates can compromise the robot’s efficiency and safety. Lastly, computational efficiency is a concern; the algorithms used for control and path planning must run within limited processing budgets to maintain real-time performance in the simulation environment.</p>
+                </div>
+
+                <div class="content-section">
+                  <h1 id="literature-review">4. Literature Review</h1>
+                  <p>The Autonomous Juice Delivery Robot project, developed to automate beverage delivery in a simulated restaurant environment using PyBullet, draws on a diverse body of research in service robotics, path planning, control systems, and obstacle avoidance. Eight key studies provide foundational insights into automated bartending, navigation, stability, and sensing, informing the project’s design and implementation. These studies, spanning robotic preparation systems, distributed planning algorithms, LQR-based control, reinforcement learning (RL), and advanced obstacle avoidance, are evaluated for their relevance to the project’s goals of autonomous navigation, stable payload transport, and efficient task management. By synthesizing these approaches, the project achieves a cohesive system with a 100% delivery success rate, 6.37-second average delivery time, and 0.0143 m path smoothness.</p>
+                  <p>Research on automated bartending, such as Ramirez et al. (2024) [1] and Pettis (2009) [2], highlights the demand for automation in the gastronomic sector. Ramirez et al.’s robotic arm for Pisco Sour preparation demonstrates consistent quality and cost optimization, validated at a social event, while Pettis’s Barbot explores DIY beverage mixing. Both focus on preparation, unlike the project’s emphasis on mobile delivery, necessitating navigation and stability solutions like ADMM-based path planning and LQR control. Wang et al. (2023) [4] and Zhang et al. (2023) [8] address path planning, with Wang’s distributed ADMM algorithm for multi-robot systems inspiring the project’s NovelPathPlanner, tailored for a single robot with cubic spline smoothing from Wu et al. (2013) [7]. Zhang’s velocity obstacle method for UUVs suggests dynamic avoidance strategies, though the project prioritizes computational efficiency for its differential-drive robot. Dong et al. (2022) [5] provide an LQR framework for balance control, directly applied to maintain juice glass tilt below 0.3 radians, aligning with the project’s stability focus.</p>
+                  <p>Advanced navigation and sensing techniques further inform the project. Tariverdi et al. (2023) [3] employ RL for milliscale robot navigation in PyBullet, achieving a 98.86% success rate in real-world tests, suggesting sim-to-real potential for the project, though its deterministic algorithms suit the current scope. Yuan (2024) [6] integrates CNN, RNN, and DQN for aircraft obstacle avoidance, achieving a 100% success rate, highlighting opportunities to enhance the project’s simulated camera-based detection with real-time processing. Wu et al.’s cubic spline interpolation ensures smooth trajectories, critical for the project’s path continuity. These studies collectively lack the project’s end-to-end integration of navigation, stability, and order management via a Flask-based dashboard, marking its unique contribution.</p>
+                  <p>Despite their contributions, the studies reveal gaps. Most focus on specific components—preparation [1, 2], planning [4, 8], or control [5]—while the project unifies these into a comprehensive system. The static obstacle assumption limits adaptability compared to dynamic approaches in Zhang et al. and Yuan, and Tariverdi et al.’s RL complexity is unnecessary for the project’s well-defined tasks. Future enhancements could incorporate real-time sensing, RL for adaptive navigation, or multi-robot coordination from Wang et al., enhancing scalability. This review positions the project as a novel advancement in service robotics, leveraging established methodologies while identifying pathways for real-world applicability and dynamic environment integration.</p>
+                  
+              </div>
+
+                <div class="content-section">
+                    <h1 id="mathematical-foundations">5. Mathematical Foundations</h1>
+                    <h2 id="math-admm">5.1 ADMM for Path Planning</h2>
+                    <h3 id="math-admm-formulation">5.1.1 Problem Formulation</h3>
+                    <p>The path planning problem is formulated as a constrained optimization:</p>
+                    <div class="equation">
+                        <p>\[
+                        \min_{x} \left( \frac{1}{2} x^T H x + q^T x \right) \quad \text{s.t.} \quad x \in \mathcal{C},
+                        \]</p>
+                        <p>where \( x \in \mathbb{R}^{2n} \) represents \( n \) waypoints in 2D space, \( H \) is a smoothness matrix, \( q \) biases the path toward the goal, and \( \mathcal{C} \) includes:</p>
+                        <ul>
+                            <li>Start and goal constraints: \( x_1 = s \), \( x_n = g \).</li>
+                            <li>Obstacle avoidance: \( \|x_i - o_j\| \geq r_j \), where \( o_j \) and \( r_j \) are obstacle centers and radii.</li>
+                            <li>Workspace bounds: \( x_i \in [x_{\min}, x_{\max}] \times [y_{\min}, y_{\max}] \).</li>
+                        </ul>
+                    </div>
+                    
+                    <h3 id="math-admm-algorithm">5.1.2 Algorithm Details</h3>
+                    <p>ADMM reformulates the problem as:</p>
+                    <div class="equation">
+                        <p>\[
+                        \min_{x,z} \left( \frac{1}{2} x^T H x + q^T x + I_{\mathcal{C}}(z) \right) \quad \text{s.t.} \quad x = z,
+                        \]</p>
+                        <p>where \( I_{\mathcal{C}}(z) \) is the indicator function for \( \mathcal{C} \). The augmented Lagrangian is:</p>
+                        <p>\[
+                        L_\rho(x, z, u) = \frac{1}{2} x^T H x + q^T x + I_{\mathcal{C}}(z) + \frac{\rho}{2} \|x - z + u\|_2^2,
+                        \]</p>
+                        <p>with \( \rho > 0 \) as the penalty parameter and \( u \) as the dual variable. The ADMM iterations are:</p>
+                        <ol>
+                            <li>\( x^{k+1} = \arg\min_x L_\rho(x, z^k, u^k) \), solved via a linear system.</li>
+                            <li>\( z^{k+1} = \arg\min_z I_{\mathcal{C}}(z) + \frac{\rho}{2} \|x^{k+1} - z + u^k\|_2^2 \), projecting onto \( \mathcal{C} \).</li>
+                            <li>\( u^{k+1} = u^k + x^{k+1} - z^{k+1} \).</li>
+                        </ol>
+                        <p>Convergence is guaranteed under mild conditions, with cubic spline smoothing applied to the final path.</p>
+                        <p>
+                            Where \( \rho = 1.5 \) is a penalty parameter. The algorithm performs three updates per iteration:
+                            </p>
+                            
+                            <ul>
+                                <li><strong>Path Update:</strong> Construct \( H = 0.1 \cdot A^T A + \rho I \) and solve \( H \cdot \text{path} = q \), where \( q = \rho(z - u) \).</li>
+                                <li><strong>Obstacle Projection:</strong> Clip waypoints to workspace bounds and push those near obstacles outward using:
+                                    \[
+                                    \text{push\_vector} = \frac{\vec{v}}{\|\vec{v}\|} \cdot (\text{safety\_margin} - \|\vec{v}\|) \cdot 1.1
+                                    \]
+                                    Where \( \vec{v} = \text{point}_{xy} - \text{obstacle}_{xy} \).
+                                </li>
+                            </ul>
+                    </h3></div>
+                    
+                <h2 id="math-lqr">5.2 LQR for Stability Control</h2>
+                    <h3 id="math-lqr-formulation">5.2.1 System Dynamics</h3>
+                    <p>The glass dynamics are modeled as a linear system:</p>
+                    <div class="equation">
+                        <p>\[
+                        \dot{x} = A x + B u,
+                        \]</p>
+                        <p>where \( x = [x, y, \theta_x, \theta_y, \dot{x}, \dot{y}, \dot{\theta}_x, \dot{\theta}_y]^T \) includes position, tilt angles, and velocities, and \( u = [F_x, F_y, \tau_x, \tau_y]^T \). The matrices \( A \) and \( B \) are derived from the robot's kinematics and glass dynamics.</p>
+                    </div>
+                    
+                    <h2>5.2.2 Controller Design</h2>
+                <p>The LQR minimizes the cost function:</p>
+                
+                <div class="equation">
+                    <p>\[
+                    J = \sum_{t=0}^{\infty} \left( x_t^T Q x_t + u_t^T R u_t \right)
+                    \]</p>
+                    <p>
+                        where \( Q \succeq 0 \) penalizes deviations in state variables—especially tilt angles—and \( R \succ 0 \) discourages excessive control effort. The specific cost matrices are:
+                    </p>
+                    <p>\[
+                    Q = \text{diag}(2.0, 2.0, 200.0, 200.0, 2.0, 2.0, 20.0, 20.0), \quad
+                    R = \text{diag}(0.05, 0.05, 0.5, 0.5)
+                    \]</p>
+                    <p>
+                        These matrices assign:
+                    </p>
+                    <ul>
+                        <li>High weights (200.0) to tilt angles \( \theta_x, \theta_y \) and (20.0) to their angular velocities to ensure juice stability.</li>
+                        <li>Moderate weights (2.0) to position and linear velocities, allowing path flexibility.</li>
+                        <li>Low weights (0.05 and 0.5) in \( R \) to limit control inputs while preserving maneuverability.</li>
+                    </ul>
+                    <p>
+                        The optimal control law derived from LQR is:
+                    </p>
+                    <p>\[
+                    u_t = -K x_t
+                    \]</p>
+                    <p>
+                        where \( K \) is the feedback gain matrix obtained by solving the discrete-time algebraic Riccati equation:
+                    </p>
+                    <p>\[
+                    P = \text{solve\_discrete\_are}(A, B, Q, R), \quad
+                    K = (R + B^T P B)^{-1} B^T P A
+                    \]</p>
+                    <p>
+                        SciPy's <code>linalg.solve_discrete_are</code> is used to ensure stable and efficient computation of \( P \). In practice, the LQR is initialized with the robot’s current state vector:
+                    </p>
+                    <p>\[
+                    x = [x, y, 0, 0, \dot{x}, \dot{y}, 0, 0]^T
+                    \]</p>
+                    <p>
+                        assuming zero initial tilt and angular velocity, as the robot begins carrying the juice upright.
+                    </p>
+                </div>
+                
+                <p>The scaling factor (0.3) ensures smooth adjustments, preventing overcorrection. This output is applied during juice-carrying states, reducing spillage by stabilizing the glass, as validated in prior simulations.</p>
+
+                <div class="highlight">
+                    <p><strong>Implementation Note:</strong> The <code>LQRController</code> integrates with the <code>RobotBartenderStateMachine</code>, activating during <code>MOVING_TO_TABLE</code> to ensure stable delivery.</p>
+                </div>
+
+                <h2 id="methodology-spline">5.3 Spline Interpolation for Path Smoothing</h2>
+
+<p>Path planning in robotic systems frequently generates waypoints that, while collision-free, may produce jerky or inefficient motion when followed directly. The Spline Interpolation module addresses this limitation by applying mathematical curve fitting techniques to generate smooth, continuous paths that the robot can follow efficiently while maintaining safety constraints. This section details the mathematical foundations of the cubic spline interpolation approach implemented in the system and its integration with the broader path planning framework.</p>
+
+<h3 id="mathematical-foundations">5.3.1 Mathematical Foundations of Cubic Splines</h3>
+
+<p>Cubic splines represent a piecewise polynomial interpolation technique where cubic polynomials connect adjacent data points, creating a smooth curve with continuous first and second derivatives. For a path defined by a set of waypoints \(\{(x_i, y_i, z_i) | i = 0, 1, ..., n\}\), the cubic spline consists of \(n\) cubic polynomials, each defined over the interval \([t_i, t_{i+1}]\).</p>
+
+<p>For each dimension (x, y, z), a separate spline is constructed. Taking the x-dimension as an example, each segment of the spline between points \(t_i\) and \(t_{i+1}\) is represented by a cubic polynomial:</p>
+
+<div class="equation">
+\begin{align}
+S_i(t) = a_i + b_i(t-t_i) + c_i(t-t_i)^2 + d_i(t-t_i)^3, \quad t \in [t_i, t_{i+1}]
+\end{align}
+</div>
+
+<p>Where \(a_i\), \(b_i\), \(c_i\), and \(d_i\) are coefficients determined by the following constraints:</p>
+
+<ol>
+    <li><strong>Interpolation Constraints:</strong> The spline must pass through each waypoint.
+        <div class="equation">
+        \begin{align}
+        S_i(t_i) &= x_i \\
+        S_i(t_{i+1}) &= x_{i+1}
+        \end{align}
+        </div>
+    </li>
+    <li><strong>Continuity Constraints:</strong> At each interior waypoint, the first and second derivatives must be continuous.
+        <div class="equation">
+        \begin{align}
+        S_i'(t_{i+1}) &= S_{i+1}'(t_{i+1}) \\
+        S_i''(t_{i+1}) &= S_{i+1}''(t_{i+1})
+        \end{align}
+        </div>
+    </li>
+</ol>
+
+<p>For natural cubic splines, which are implemented in the system, additional boundary conditions are imposed:</p>
+
+<div class="equation">
+\begin{align}
+S_0''(t_0) &= 0 \\
+S_{n-1}''(t_n) &= 0
+\end{align}
+</div>
+
+<p>These conditions specify zero curvature at the endpoints, resulting in a more natural-looking curve that doesn't overconstrain the interpolation process.</p>
+<h3 id="parameterization">5.3.2 Path Parameterization</h3>
+
+<p>A critical aspect of spline interpolation is the parameterization of the curve. In the implemented system, a normalized parameterization is used, where \(t \in [0, 1]\) spans the entire path and is divided proportionally among the segments:</p>
+
+<div class="equation">
+\begin{align}
+t_i = \frac{i}{n}, \quad i = 0, 1, ..., n
+\end{align}
+</div>
+
+<p>This parameterization ensures that the interpolation parameter is independent of the physical spacing between waypoints, creating a more evenly distributed interpolation. For applications where velocity control is important, an arc-length parameterization can be implemented as an extension, in which the parameter t corresponds to the normalized distance along the path:</p>
+
+<div class="equation">
+\begin{align}
+t_i = \frac{\sum_{j=0}^{i-1} \|\mathbf{p}_{j+1} - \mathbf{p}_j\|}{\sum_{j=0}^{n-1} \|\mathbf{p}_{j+1} - \mathbf{p}_j\|}
+\end{align}
+</div>
+
+<p>Where \(\mathbf{p}_j = (x_j, y_j, z_j)\) represents the j-th waypoint. This approach ensures more uniform robot movement along the path, but adds computational complexity.</p>
+
+
+<p>The spline interpolation module is implemented as a reusable component that takes a set of waypoints as input and produces a smooth interpolated path. The key steps in the implementation include:</p>
+
+<ol>
+    <li><strong>Parameter Generation:</strong> Compute the parameter values \(t_i\) for each waypoint</li>
+    <li><strong>System Construction:</strong> For each dimension, build the tridiagonal system of equations</li>
+    <li><strong>System Solution:</strong> Solve for the second derivatives using an efficient tridiagonal solver</li>
+    <li><strong>Coefficient Computation:</strong> Calculate the polynomial coefficients for each segment</li>
+    <li><strong>Path Sampling:</strong> Sample the spline at desired resolution to generate a smooth path</li>
+</ol>
+
+<p>The implementation leverages optimized numerical methods to solve the tridiagonal system, achieving O(n) complexity where n is the number of waypoints. This efficiency allows the system to quickly recompute paths when environmental conditions change or new obstacles are detected.</p>
+
+<p>The code structure separates the mathematical computation from the path representation, allowing various robot control systems to utilize the smoothed paths regardless of their internal control methodologies.</p>
+
+<h3 id="path-quality">5.3.3 Path Quality Characteristics</h3>
+
+<p>The cubic spline interpolation provides several important quality characteristics that improve robot navigation:</p>
+
+<ul>
+    <li><strong>C² Continuity:</strong> The path has continuous position, velocity, and acceleration profiles, eliminating jerky motion that could arise from direct waypoint following</li>
+    <li><strong>Minimum Curvature:</strong> Among all twice-differentiable interpolants, cubic splines minimize the integrated squared curvature:
+        <div class="equation">
+        \begin{align}
+        \min \int_{t_0}^{t_n} [f''(t)]^2 dt
+        \end{align}
+        </div>
+        This property creates paths that are both smooth and efficient for robot traversal</li>
+    <li><strong>Local Control:</strong> Changes to a single waypoint affect only the neighboring segments, providing robustness to local path adjustments</li>
+    <li><strong>Exact Interpolation:</strong> The spline passes exactly through the specified waypoints, maintaining fidelity to the collision-free path generated by the path planner</li>
+</ul>
+
+<p>These characteristics make cubic splines particularly well-suited for robot path smoothing applications, balancing computational efficiency with motion quality.</p>
+<p>The spline interpolation module integrates with the broader path planning framework through a well-defined interface. When the path planner generates a collision-free path consisting of discrete waypoints, the spline interpolation module is invoked to create a smooth, continuous representation:</p>
+
+<ol>
+    <li>The raw path from the planner is passed to the spline interpolator</li>
+    <li>The interpolator computes the spline representation</li>
+    <li>The smooth path is sampled at a higher resolution</li>
+    <li>The robot controller follows the densely sampled smooth path</li>
+</ol>
+
+<p>This integration occurs after collision-free path generation but before motion execution, creating a pipeline that transforms raw planning results into executable robot trajectories.</p>
+
+<p>A critical aspect of this integration is collision checking for the interpolated path. While the original waypoints are guaranteed to be collision-free, the interpolated segments between them might introduce collisions. The system addresses this by:</p>
+
+<ol>
+    <li>Sampling the spline at a fine resolution</li>
+    <li>Performing collision checks on the samples</li>
+    <li>If collisions are detected, inserting additional waypoints in the original path and recomputing the spline</li>
+</ol>
+
+<p>This iterative refinement process ensures that the final smooth path maintains the collision-free property of the original planned path.</p>
+
+<h3 id="adaptations">5.3.4 Adaptations for Robotic Requirements</h3>
+
+<p>The standard cubic spline interpolation has been adapted to meet specific requirements of the robotic system:</p>
+
+<ul>
+    <li><strong>Velocity Control:</strong> The spline evaluation includes first derivative calculation, allowing the robot controller to adjust velocity based on path curvature:
+        <div class="equation">
+        \begin{align}
+        S_i'(t) = b_i + 2c_i(t-t_i) + 3d_i(t-t_i)^2
+        \end{align}
+        </div>
+    </li>
+    <li><strong>Dynamic Resolution:</strong> The sampling resolution of the spline adapts based on local curvature, with higher sampling in regions of high curvature to ensure accurate path following</li>
+    <li><strong>Height Adjustments:</strong> For robots operating on uneven terrain, the z-dimension spline can be adjusted to ensure smooth vertical transitions while maintaining a safe distance from the ground</li>
+</ul>
+
+<p>These adaptations ensure that the mathematically elegant spline formulation translates into practically effective robot motion.</p>
+<p>The spline interpolation module is designed with computational efficiency in mind, particularly important for real-time replanning scenarios. Key performance optimizations include:</p>
+
+<ul>
+    <li><strong>Cached Computations:</strong> Once computed, spline coefficients are cached and reused until the underlying waypoints change</li>
+    <li><strong>Incremental Updates:</strong> When only the end of a path changes (e.g., when extending a path), the system can recompute only the affected segments</li>
+    <li><strong>Optimized Solver:</strong> The tridiagonal system is solved using an optimized Thomas algorithm with O(n) complexity</li>
+</ul>
+
+<p>These optimizations allow the system to handle frequent path updates without introducing significant computational overhead, supporting responsive robot behavior in dynamic environments.</p>
+<p>The cubic spline interpolation module provides a mathematically sound approach to transforming discrete waypoints into smooth, continuous paths that are well-suited for robot execution. By balancing interpolation accuracy, path quality, and computational efficiency, the module enables natural and efficient robot motion while preserving the collision-avoidance properties of the original planned path. The integration with the broader path planning and control framework creates a cohesive system that leverages the strengt
+                            </div>
+
+                <div class="content-section">
+                    <h1 id="methodology">6. Methodology</h1>
+                    <h2 id="methodology-path-planning">6.1 System Architecture</h2>
+                    <p>The Autonomous Juice Delivery Robot is meticulously engineered to handle the complete juice delivery lifecycle in a restaurant setting. The system integrates several advanced modules to enable:</p>
+                    <ol>
+                        <li>Autonomous navigation and path planning</li>
+                            <li>Stable beverage handling and tilt control</li>
+                            <li>Real-time order management</li>
+                            <li>Dynamic obstacle avoidance</li>
+                    </ol>                        
+                    <p></p> The robot operates within a clearly defined workspace, navigating around static and dynamic obstacles, executing glass pickup and filling routines, and delivering juice to customer tables while continuously adjusting for stability to prevent spillage. The system is driven by sophisticated algorithms, physics-based simulation models, and a robust state machine framework.</p>
+                    <h3 id="methodology-components">6.1.1 Components</h3>
+                    <p>The system comprises several key components, each implemented as a Python class in the provided code. The Robot Controller (RobotController) manages the movement of the R2D2-like robot and handles glass attachment and detachment. It uses base position control to follow waypoints and velocity control for wheel joints, adjusting speed based on whether the robot is carrying juice, with empty_robot_speed = 1.5 m/s and full_robot_speed = 0.8 m/s.
+                        
+                        The Juice Particle System (JuiceParticleSystem) simulates juice behaviour using 30 spherical particles that respond to robot acceleration and tilt. It provides visual feedback on juice stability, with particles constrained within the glass.
+                        The Obstacle Detection (ImageBasedObstacleDetection) simulates camera-based obstacle detection by using predefined obstacle data. It updates the path planner with obstacle positions and radii.
+                        The Order Manager (OrderManager) reads customer orders from a data.json file, queues them, and updates the file upon delivery completion. It supports manual order addition via keyboard input for testing.
+                        The State Machine (RobotBartenderStateMachine) orchestrates the delivery process through various states: IDLE, MOVING_TO_JUICE, PICKING_GLASS, FILLING_GLASS, MOVING_TO_TABLE, LOWERING_GLASS, DELIVERING_JUICE, and MOVING_TO_HOME. It manages transitions based on conditions like path completion or timers.
+
+                        <h2>6.2 PathPlanner</h3>
+                        <p><p>The <code>NovelPathPlanner</code> class is the backbone of path planning for an R2D2-like robot in a PyBullet-based simulation, enabling it to navigate from a start position (e.g., [0, 0, 0.4]) to a goal (e.g., juice station at [0, 0.9, 0.2]) while avoiding obstacles like tables and static objects. It uses an Alternating Direction Method of Multipliers (ADMM) algorithm to generate smooth, collision-free paths, dynamically updating them based on obstacle data from the <code>ImageBasedObstacleDetection</code> class. Initialized with obstacles ([x, y, z, radius]), workspace bounds ([-5, 5, -5, 5]), and parameters like penalty factor (rho = 1.5), step size (alpha = 1.2), maximum iterations (50), tolerance (1e-4), and height constraints (0.2 to 0.6 meters), it ensures robust navigation in a dynamic environment.</p>
+
+                        <h3>6.2.1 Core Functionality</h2>
+                        <p>The planner's primary method, <code>plan_path</code>, takes start and goal positions and generates a path with 30 waypoints, refined iteratively via ADMM to balance smoothness and obstacle avoidance. The <code>update_obstacles</code> method allows real-time obstacle updates, critical for adapting to changes like a new table position. The final path is smoothed using cubic splines in <code>_smooth_path</code>, doubling waypoint density for fluid motion. This process ensures the robot moves efficiently and safely, as seen in prior simulations where it successfully navigated to the juice station after adjusting for dynamic obstacles.</p>
+                    
+                        <h3>6.2.2 ADMM Algorithm: Structure and Workflow</h2>
+                        <p>ADMM is an optimization technique that splits a complex problem into manageable subproblems, ideal for path planning with competing objectives: smoothness (minimizing sharp turns) and obstacle avoidance (ensuring collision-free points). The algorithm operates on three variables:</p>
+                        <ul>
+                            <li><strong>Path (x):</strong> The current path, initialized as a linear interpolation between start and goal.</li>
+                            <li><strong>Projected Path (z):</strong> A copy of x, adjusted to lie in obstacle-free space.</li>
+                            <li><strong>Dual Variable (u):</strong> A zero-initialized vector that mediates convergence.</li>
+                        </ul>
+                        <p>The ADMM loop, capped at 50 iterations, performs three steps per iteration, converging when residuals drop below 1e-4.</p>
+                    
+                        <h4>Step 1: Path Update (<code>_update_path</code>)</h3>
+                        <p>This step optimizes the path for smoothness while fixing start and goal positions. A finite difference matrix <code>A</code> (n-2 × n) approximates second derivatives to penalize curvature. The quadratic cost matrix is <span class="math">H = 0.1 * A^T * A + rho * I</span>, where <code>A^T * A</code> enforces smoothness and <code>rho * I</code> ensures proximity to <code>z - u</code>. The linear term is <span class="math">q = rho * (z - u)</span>. For each dimension (x, y, z), a system <span class="math">H * x = q</span> is solved with constraints: <code>H[0,0] = 1</code> and <code>H[-1,-1] = 1</code> fix the start and goal, respectively. NumPy’s <code>linalg.solve</code> computes the new path, ensuring numerical stability.</p>
+                    
+                        <h4>Step 2: Obstacle Projection (<code>_update_z</code>)</h3>
+                        <p>The path is projected to avoid obstacles by updating <code>z = x + u</code>. For each point (except start and goal), coordinates are clipped to workspace bounds ([-5, 5, -5, 5]) and height limits [0.2, 0.6]. For each obstacle, the distance <span class="math">dist = ||point[:2] - obs_pos[:2]||</span> is calculated. If <code>dist < obs_radius + 0.25</code>, a push vector <span class="math">(vec / dist) * (obs_radius - dist) * 1.1</span> moves the point outside the obstacle’s safety margin. A small threshold (1e-6) prevents division by zero, defaulting to a unit vector. This ensures collision-free points while maintaining path integrity.</p>
+                    
+                        <h4>Step 3: Dual Update</h3>
+                        <p>The dual variable is updated as <span class="math">u = u + x - z</span>, adjusting the penalty to align <code>x</code> and <code>z</code>. This step drives convergence by penalizing discrepancies between the smooth path and obstacle-free projection.</p>
+                    
+                        <h3>6.2.3 Convergence Mechanics</h2>
+                        <p>ADMM converges when the primal residual (<span class="math">||x - z||</span>) and dual residual (<span class="math">||z - z_prev||</span>) are below 1e-4. The algorithm balances objectives: <code>x</code> becomes smoother via <code>_update_path</code>, while <code>z</code> ensures obstacle avoidance via <code>_update_z</code>. The dual variable <code>u</code> mediates this trade-off, with <code>rho</code> controlling penalty strength. Convergence is typically achieved in fewer than 50 iterations, as the quadratic penalty and smoothness constraints reduce residuals rapidly. Past simulations showed robust convergence after increasing iterations and adjusting <code>rho</code>, avoiding issues like invalid distance calculations.</p>
+                    
+                        <h3>6.2.4 Path Smoothing and Output</h2>
+                        <p>After ADMM, <code>_smooth_path</code> applies cubic splines using SciPy’s <code>CubicSpline</code>. Time points <span class="math">t = [0, 1]</span> are interpolated over 30 waypoints, then resampled to 60 points for smoother trajectories. This ensures the robot’s motion is fluid, reducing jerky movements. The output, a 60 × 3 array, is passed to the <code>RobotController</code> for waypoint following.</p>
+                    </p>
+                        The Juice Particle System (JuiceParticleSystem) simulates juice behaviour using 30 spherical particles that respond to robot acceleration and tilt. It provides visual feedback on juice stability, with particles constrained within the glass.
+                        The Obstacle Detection (ImageBasedObstacleDetection) simulates camera-based obstacle detection by using predefined obstacle data. It updates the path planner with obstacle positions and radii.
+                        The Order Manager (OrderManager) reads customer orders from a data.json file, queues them, and updates the file upon delivery completion. It supports manual order addition via keyboard input for testing.
+                        The State Machine (RobotBartenderStateMachine) orchestrates the delivery process through various states: IDLE, MOVING_TO_JUICE, PICKING_GLASS, FILLING_GLASS, MOVING_TO_TABLE, LOWERING_GLASS, DELIVERING_JUICE, and MOVING_TO_HOME. It manages transitions based on conditions like path completion or timers.
+                        </p>
+                    The <code>NovelPathPlanner</code> class is responsible for generating smooth and collision-free paths 
+                    that enable the robot to navigate autonomously between the juice counter, customer tables, and its home position. 
+                    This planner leverages the Alternating Direction Method of Multipliers (ADMM) to solve a constrained optimization problem 
+                    that balances trajectory smoothness and obstacle avoidance. After optimization, the path is refined using cubic spline interpolation 
+                    to ensure continuous and physically feasible trajectories.
+                    </p>
+                    
+                    <p>
+                    ADMM is an iterative algorithm that decomposes constrained problems into simpler subproblems, 
+                    updating primal and dual variables until convergence. In this context, the optimization objective is to minimize
+                    
+                    <p class="equation">
+                    Here, <code>path</code> is an \( n \times 3 \) array representing waypoint coordinates \((x, y, z)\), 
+                    and \( A \) is a second-order difference matrix:
+                    \[
+                    A[i, i] = 1, \quad A[i, i+1] = -2, \quad A[i, i+2] = 1
+                    \]
+                    </p>
+                    
+                    <p class="equation">
+                    The feasible set \( \mathcal{C} \) ensures all waypoints lie within workspace bounds and outside obstacle regions. 
+                    ADMM introduces auxiliary variables \( z \) and dual variables \( u \), with the augmented Lagrangian:
+                    \[
+                    \mathcal{L}(\text{path}, z, u) = \frac{0.1}{2} \|A \cdot \text{path}\|^2 + \frac{\rho}{2} \|\text{path} - z + u\|^2
+                    \]
+                    </p>
+                    
+                    <p class="equation">
+                    Where \( \rho = 1.5 \) is a penalty parameter. The algorithm performs three updates per iteration:
+                    </p>
+                    
+                    <ul>
+                        <li><strong>Path Update:</strong> Construct \( H = 0.1 \cdot A^T A + \rho I \) and solve \( H \cdot \text{path} = q \), where \( q = \rho(z - u) \).</li>
+                        <li><strong>Obstacle Projection:</strong> Clip waypoints to workspace bounds and push those near obstacles outward using:
+                            <p class="equation">\[
+                            \text{push\_vector} = \frac{\vec{v}}{\|\vec{v}\|} \cdot (\text{safety\_margin} - \|\vec{v}\|) \cdot 1.1
+                            \]
+                            Where \( \vec{v} = \text{point}_{xy} - \text{obstacle}_{xy} \). </p>
+                        </li>
+                        <li><strong>Dual Update:</strong> \( u = u + \text{path} - z \).</li>
+                    </ul>
+                    
+                    <p>
+                    The iteration stops when residuals meet the criteria \( \|\text{path} - z\| < 10^{-4} \) and \( \|z - z_{\text{prev}}\| < 10^{-4} \). 
+                    Finally, cubic spline interpolation is used to generate a \( 60 \times 3 \) smooth trajectory.
+                    </p>
+                    
+                    <p>
+                    The robot operates within bounds \( x, y \in [-5, 5] \), \( z \in [0.2, 0.6] \), and avoids cylindrical obstacles with a 0.25 m safety margin.
+                    </p>
+                    
+                    <h2 id="methodology-control">6.3 Balance Control with LQR</h2>
+                    <p>The <code>LQRController</code> class ensures the stability of a juice glass during transport by an R2D2-like robot, minimizing tilt to prevent spillage. It employs a Linear Quadratic Regulator (LQR) to compute optimal control inputs that adjust the robot’s acceleration based on its current state, balancing position, velocity, and tilt dynamics. This is critical when the robot carries juice, as excessive tilt could lead to spills, as observed in prior simulations where unadjusted acceleration caused instability.</p>
+                    
+                    <p><strong>Objective:</strong> The <code>LQRController</code> stabilizes the juice glass during transport by adjusting the robot’s acceleration to minimize tilt and prevent spillage. A Linear Quadratic Regulator (LQR) computes optimal control inputs using the robot’s current state.</p>
+                    
+                    <p><strong>Mathematical Foundation:</strong></p>
+                    <p class="equation">
+                    LQR minimizes:
+                    \[
+                    J = \sum_{t=0}^\infty \left( x_t^\top Q x_t + u_t^\top R u_t \right)
+                    \]
+                    subject to:
+                    \[
+                    x_{t+1} = A x_t + B u_t
+                    \]
+                    and:
+                    \[
+                    u_t = -K x_t
+                    \]
+                    </p>
+                    
+                    <p><strong>State Space Model:</strong></p>
+                    <p class="equation">
+                    The state vector is:
+                    \[
+                    x = [x, y, \theta_x, \theta_y, \dot{x}, \dot{y}, \dot{\theta}_x, \dot{\theta}_y]^\top
+                    \]
+                    </p>
+                    
+                    <p class="equation">
+                    The matrix \( A \in \mathbb{R}^{8 \times 8} \) is:
+                    \[
+                    \begin{bmatrix}
+                    1 & 0 & 0 & 0 & \Delta t & 0 & 0 & 0 \\
+                    0 & 1 & 0 & 0 & 0 & \Delta t & 0 & 0 \\
+                    0 & 0 & 1 & 0 & 0 & 0 & \Delta t & 0 \\
+                    0 & 0 & 0 & 1 & 0 & 0 & 0 & \Delta t \\
+                    0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+                    0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+                    0 & 0 & -g \cdot \frac{\Delta t}{2} & 0 & 0 & 0 & 1 & 0 \\
+                    0 & 0 & 0 & -g \cdot \frac{\Delta t}{2} & 0 & 0 & 0 & 1
+                    \end{bmatrix}
+                    \]
+                    </p>
+                    
+                    <p class="equation">
+                    The control input matrix \( B \in \mathbb{R}^{8 \times 4} \) is:
+                    \[
+                    \begin{bmatrix}
+                    0 & 0 & 0 & 0 \\
+                    0 & 0 & 0 & 0 \\
+                    0 & 0 & 0 & 0 \\
+                    0 & 0 & 0 & 0 \\
+                    \Delta t & 0 & 0 & 0 \\
+                    0 & \Delta t & 0 & 0 \\
+                    0 & 0 & \Delta t \cdot 0.5 & 0 \\
+                    0 & 0 & 0 & \Delta t \cdot 0.5 \\
+                    \end{bmatrix}
+                    \]
+                    </p>
+                    
+                    <p><strong>Cost Matrices:</strong></p>
+                    <p class="equation">
+                    \[
+                    Q = \text{diag}(2.0, 2.0, 200.0, 200.0, 2.0, 2.0, 20.0, 20.0), \quad
+                    R = \text{diag}(0.05, 0.05, 0.5, 0.5)
+                    \]
+                    </p>
+                    
+                    <p><strong>Gain Computation:</strong></p>
+                    <p class="equation">
+                    \[
+                    P = \text{solve\_discrete\_are}(A, B, Q, R), \quad
+                    K = (R + B^\top P B)^{-1} B^\top P A
+                    \]
+                    </p>
+                    
+                    <p><strong>Implementation Details:</strong></p>
+                    <p class="equation">
+                    At each step, the state vector is initialized as:
+                    \[
+                    x = [x, y, 0, 0, \dot{x}, \dot{y}, 0, 0]^\top
+                    \]
+                    </p>
+                    <p class="equation">
+                    The control input becomes:
+                    \[
+                    u = -K x = [F_x, F_y, \tau_x, \tau_y]^\top
+                    \]
+                    </p>
+                    <p class="equation">
+                    Acceleration is modified as:
+                    \[
+                    \text{modified\_acceleration} = 
+                    \begin{bmatrix}
+                    \text{acc}[0] + 0.3 \cdot F_x \\
+                    \text{acc}[1] + 0.3 \cdot F_y \\
+                    \text{acc}[2]
+                    \end{bmatrix}
+                    \]
+                    </p>
+                    
+                    <p><strong>Application:</strong> The controller is activated when <code>carrying_juice = True</code>, using real-time position, velocity, and acceleration to ensure tilt is compensated and the glass remains upright.</p>
+                    
+                    <p><strong>Advantages and Limitations:</strong> LQR provides optimal performance for linear systems and allows straightforward tuning, making it suitable for tilt control. However, its assumption of linearity limits its performance under complex real-world fluid dynamics, and tilt angles are estimated rather than measured directly in this simulation.</p>
+
+                    <h2>6.3.1 Balance Control Mechanism</h2>
+                    <p>The <code>LQRController</code> ensures juice stability by minimizing glass tilt during transport by an R2D2-like robot, preventing spillage. It uses a Linear Quadratic Regulator (LQR) to compute optimal control inputs that adjust the robot’s acceleration based on a state vector:</p>
+                    <div class="equation">
+                        x = [x, y, θ<sub>x</sub>, θ<sub>y</sub>, ẋ, ẏ, θ̇<sub>x</sub>, θ̇<sub>y</sub>]<sup>T</sup>
+                      </div>
+                    <p>
+                        This state vector <code>x</code> encapsulates the full dynamic status of the robot and the carried glass:
+                    </p>
+                    <ul>
+                        <li> \( x , y \) represent the robot's planar position in the 2D workspace.</li>
+                        <li> \( \theta_x, \theta_y \) denote the tilt angles of the glass about the x and y axes, respectively.</li>
+                        <li> \( \dot{x}, \dot{y} \) are the linear velocities in the x and y directions.</li>
+                        <li> \( \dot{\theta}_x, \dot{\theta}_y \)  are the angular velocities around the x and y axes, capturing how fast the glass is tilting.</li>
+                    </ul>
+                    <p>
+                        The control input vector <code>u</code> applies forces and torques to influence the robot’s motion and maintain stability:
+                    </p>
+                    <div class="equation">
+                        \[
+                        u = \begin{bmatrix} F_x \\ F_y \\ \tau_x \\ \tau_y \end{bmatrix}
+                        \]
+                    </div>
+                    <ul>
+                        <li> \( F_x, F_y \) are forces applied in the horizontal x and y directions for translational movement.</li>
+                        <li>\( \tau_x, \tau_y \)  are torques applied to counteract and regulate tilt dynamics.</li>
+                    </ul>
+                    <p>
+                        To ensure smooth navigation and minimal juice spillage, the Linear Quadratic Regulator (LQR) minimizes a long-term cost function defined as:
+                    </p>
+                    <div class="equation">
+                        \[
+                        J = \sum_{t=0}^{\infty} \left( x_t^\top Q x_t + u_t^\top R u_t \right)
+                        \]
+                    </div>
+                    <p>
+                        where the matrices <code>Q</code> and <code>R</code> define the relative importance of state deviations and control efforts:
+                    </p>
+                    <div class="equation">
+                            \[
+                            Q = \begin{bmatrix}
+                            2.0 & 0   & 0   & 0   & 0   & 0   & 0   & 0 \\
+                            0   & 2.0 & 0   & 0   & 0   & 0   & 0   & 0 \\
+                            0   & 0   & 200.0 & 0   & 0   & 0   & 0   & 0 \\
+                            0   & 0   & 0   & 200.0 & 0   & 0   & 0   & 0 \\
+                            0   & 0   & 0   & 0   & 2.0 & 0   & 0   & 0 \\
+                            0   & 0   & 0   & 0   & 0   & 2.0 & 0   & 0 \\
+                            0   & 0   & 0   & 0   & 0   & 0   & 20.0 & 0 \\
+                            0   & 0   & 0   & 0   & 0   & 0   & 0   & 20.0
+                            \end{bmatrix}, \quad
+                            R = \begin{bmatrix}
+                            0.05 & 0    & 0    & 0 \\
+                            0    & 0.05 & 0    & 0 \\
+                            0    & 0    & 0.5  & 0 \\
+                            0    & 0    & 0    & 0.5
+                            \end{bmatrix}
+                            \]                        
+                    </div>
+                    <ul>
+                        <li>The diagonal matrix <code>Q</code> emphasizes minimizing tilt angles \( \theta_x, \theta_y \) (weights of 200.0) and their velocities (weights of 20.0) to prevent spillage.</li>
+                        <li>Lower weights on <code>x, y</code> and their velocities (2.0) allow the robot to focus more on stability than strict path precision.</li>
+                        <li>The matrix <code>R</code> limits actuation by penalizing force and torque magnitudes to ensure efficient and smooth control.</li>
+                    </ul>
+                    
+                    <p>High weights on \( \theta_x, \theta_y \) (200.0) and their velocities (20.0) prioritize tilt minimization, while lower weights on position and velocity (2.0) allow navigation flexibility. The optimal control is <code>u_t = -K x_t</code>, where <code>K</code> is computed via the discrete algebraic Riccati equation using SciPy’s <code>solve_discrete_are</code>.</p>
+                    <p>In the <code>update</code> method, the state is initialized with current position and velocity from the <code>RobotController</code>, assuming zero tilt (\( \theta_x == \theta_y \)) for simplicity:</p>
+                    <div class="equation">
+                        x = 
+                        <span class="matrix">
+                          [
+                          <span class="matrix-row">
+                            x y 0 0 ẋ ẏ 0 0
+                          </span>
+                          ]
+                        </span>
+                        <sup>⊤</sup>
+                      </div>
+                    <p>The control <code>u</code> adjusts acceleration:</p>
+                    <div class="equation">
+                        modified_acceleration = \begin{bmatrix} \text{acc}[0] + 0.3 \cdot F_x \\ \text{acc}[1] + 0.3 \cdot F_y \\ \text{acc}[2] \end{bmatrix}
+                    </div>
+                    <p>The scaling factor (0.3) ensures gentle corrections, stabilizing the glass. The <code>JuiceParticleSystem</code> reflects this stability, as particles remain within the glass (radius 0.04 m, height 0.1 m), with minimal displacement due to controlled acceleration, validated in prior simulations.</p>
+
+                    <h2>6.3.2 Response to Tilt Perturbations</h2>
+                    <p>When a tilt is applied (e.g., due to sudden robot turning or external disturbance), the LQR's response is limited by its zero-tilt assumption. If <code>\theta_x</code> or <code>\theta_y</code> becomes non-zero, the current implementation does not directly measure tilt, relying instead on position and velocity feedback. However, the high <code>Q</code> weights on tilt states amplify any detected deviation in a real system, prompting rapid correction. For instance, a tilt of 0.1 rad in <code>\theta_x</code> would generate a large penalty (200.0 * 0.1²), driving <code>\tau_x</code> to counteract it.</p>
+                    <p>The <code>JuiceParticleSystem</code> visualizes this perturbation: a tilt induces particle shifts, calculated as <code>new_x = glass_pos[0] + 0.03 * sin(tilt_angle_y)</code>, constrained within the glass. The LQR’s adjusted acceleration reduces these shifts by stabilizing the robot’s motion, clipping tilt angles to [-0.3, 0.3] rad. Future enhancements could incorporate real-time tilt sensors to update <code>\theta_x, \theta_y</code>, improving responsiveness, as noted in prior discussions. Currently, the system mitigates tilt indirectly through velocity control, ensuring juice stability during delivery.</p>
+
+                    <div class="highlight">
+                        <p><strong>Key Insight:</strong> The LQR's high tilt penalties ensure rapid stabilization, but real-time tilt measurement would enhance its response to perturbations, reducing particle displacement in the <code>JuiceParticleSystem</code>.</p>
+                    </div>
+                    
+                                        
+                    <h2 id="methodology-juice">6.4 Juice Particle System</h2>
+                    <p>The juice is modeled as a set of particles with Newtonian dynamics, incorporating damping and spring forces to simulate viscosity and cohesion.</p>
+                    <p>The juice visualization component is implemented through a physics-based particle system that simulates liquid behavior inside glasses. This approach provides a visually accurate representation of juice movement in response to glass manipulation while maintaining computational efficiency.</p>
+                    <h2 id="methodology-juice-arch">6.4.1 Particle System Architecture </h2>
+                    <p>The JuiceParticleSystem class encapsulates the complete functionality for juice simulation. Each juice instance is associated with a specific glass object through its unique glass_id, allowing for independent tracking and manipulation. The system employs the following key architectural elements:</p>
+                    <ol>
+                        <li><b>Particle Representation:</b> Individual juice particles are modeled as spherical entities with uniform radius (0.01 units). Each particle is created as a visual body with negligible mass to reduce computational overhead while maintaining visual fidelity.</li>
+                        <li><b>State Parameters</b> The system maintains several configurable parameters that govern juice behavior:
+                            <ul>
+                                <li>color: RGBA color values defining juice appearance</li>
+                                <li>fill_level: Vertical height of the juice column (0.1 units default)</li>
+                                <li>particle_radius: Size of individual particles (0.01 units)</li>
+                                <li> damping: Coefficient controlling energy dissipation (0.9)</li>
+                                <li>spring_constant: Stiffness parameter for cohesive forces (250.0)</li>
+                                <li> gravity: Gravitational acceleration constant (-9.81 m/s²)</li>
+                                <li>particle_mass: Mass value for physics calculations (0.001 kg)</li>
+                                <li>rest_height: Base vertical position of particles (0.04 units)</li>
+                            </ul></li>
+                        <li><b>Initialization Process</b> The _create_particles() method instantiates the particle collection by distributing particles in a cylindrical pattern within the glass. Particles are positioned randomly within a circular cross-section, with heights varying from the glass bottom to the specified fill level.</li>
+                    </ol>
+
+                    <h2>6.4.2 Physics Simulation and Dynamics</h2>
+                    <p>The juice simulation employs a simplified physics model that balances realism with performance:</p>
+                    <ul>
+                    <li><strong>Motion Coupling</strong>: The particles respond to glass movement and acceleration through a positional update mechanism in the <code>update()</code> method. This creates a cohesive fluid-like motion where the juice tilts in response to glass acceleration.</li>
+                    <li><strong>Tilt Response</strong>: When the glass is tilted, the particles shift laterally according to:<br><br>
+                        <pre><code>tilt_angle_x = min(max(-0.2 * acceleration[1], -0.3), 0.3)
+                    tilt_angle_y = min(max(0.2 * acceleration[0], -0.3), 0.3)</code></pre>
+                        These calculations map glass accelerations to angular displacement with appropriate constraints (-0.3 to 0.3 radians), preventing unrealistic behavior.
+                    </li>
+                    <li><strong>Positional Updates</strong>: Each particle's position is recalculated based on:
+                        <ol>
+                        <li>Current glass position and orientation</li>
+                        <li>Glass acceleration and tilt angles</li>
+                        <li>Particle height relative to glass bottom</li>
+                        <li>A containment algorithm that prevents particles from escaping the glass</li>
+                        </ol>
+                    </li>
+                    <li><strong>Containment Logic</strong>: The system enforces boundary constraints through distance checks and scaling:<br>
+                        <pre><code>if dist > 0.04:
+                        scale = 0.04 / dist
+                        new_x = glass_pos[0] + dx * scale
+                        new_y = glass_pos[1] + dy * scale</code></pre>
+                        This ensures particles remain within the glass radius (0.04 units).
+                    </li>
+                    <li><strong>Random Perturbation</strong>: Small random displacements (±0.001 units) are added to each position component to simulate natural fluid turbulence, preventing unrealistic rigid movement.</li>
+                    <li><strong>Vertical Constraints</strong>: Particles are prevented from exceeding the glass top boundary:<br>
+                        <pre><code>if new_z > glass_top[2] - 0.02:
+                        new_z = glass_top[2] - 0.02</code></pre>
+                    </li>
+                    </ul>
+                    <p>The simulation updates at each time step, with delta time (<code>dt</code>) calculations ensuring consistent behavior regardless of frame rate variations:</p>
+                    <pre><code>dt = current_time - self.last_time
+                    self.last_time = current_time</code></pre>
+                    <p>The system handles exceptions robustly, removing invalid particles and maintaining system stability even in edge cases. This approach ensures the visualization remains functional throughout extended interactions.</p>
+                    <p>The <code>activate()</code> method provides a clean interface for toggling juice visibility, handling all necessary particle creation and management internally. This encapsulation simplifies the main simulation loop, which only needs to call <code>update()</code> with the current glass acceleration to maintain the juice visualization.</p>
+                    <p>Overall, this methodology balances visual fidelity with computational efficiency, creating a convincing representation of liquid behavior without requiring complex fluid dynamics equations or excessive computational resources.</p>
+
+                    <h2 id="methodology-state-machine">6.5 Finite State Machine</h2>
+
+                    <p>The robot bartender's behavior is orchestrated through a Finite State Machine (FSM) that manages the complete juice delivery workflow. This architectural pattern provides a structured approach to complex sequential tasks while maintaining system modularity and error resilience.</p>
+                    
+                    <h3>6.5.1 State Machine Architecture</h3>
+                    
+                    <p>The <code>RobotBartenderStateMachine</code> class implements a deterministic FSM with eight distinct operational states that collectively represent the complete juice service cycle:</p>
+                    
+                    <ul>
+                      <li><strong>IDLE</strong>: Base state where the robot awaits new orders</li>
+                      <li><strong>MOVING_TO_JUICE</strong>: Navigation to juice dispensing station</li>
+                      <li><strong>PICKING_GLASS</strong>: Glass acquisition sequence</li>
+                      <li><strong>FILLING_GLASS</strong>: Juice dispensing operation</li>
+                      <li><strong>MOVING_TO_TABLE</strong>: Navigation to customer table</li>
+                      <li><strong>LOWERING_GLASS</strong>: Precision placement preparation</li>
+                      <li><strong>DELIVERING_JUICE</strong>: Final delivery action</li>
+                      <li><strong>MOVING_TO_HOME</strong>: Return to idle position</li>
+                    </ul>
+                    
+                    <p>The state machine maintains critical system references including:</p>
+                    
+                    <ul>
+                      <li>Robot entity ID (<code>robot_id</code>)</li>
+                      <li>Glass entity ID (<code>glass_id</code>)</li>
+                      <li>Physical constraint ID for glass attachment (<code>constraint_id</code>)</li>
+                      <li>Juice visualization system (<code>juice_system</code>)</li>
+                    </ul>
+                    
+                    <p>State transitions are managed through a dictionary-based dispatch system that maps state names to handler methods:</p>
+                    
+                    <pre><code>self.STATES = {
+                        "IDLE": self.state_idle,
+                        "MOVING_TO_JUICE": self.state_moving_to_juice,
+                        "PICKING_GLASS": self.state_picking_glass,
+                        "FILLING_GLASS": self.state_filling_glass,
+                        "MOVING_TO_TABLE": self.state_moving_to_table,
+                        "LOWERING_GLASS": self.state_lowering_glass,
+                        "DELIVERING_JUICE": self.state_delivering_juice,
+                        "MOVING_TO_HOME": self.state_returning_home
+                    }</code></pre>
+                    
+                    <p>This design pattern enables clean separation of state-specific logic while providing a consistent update interface to the main simulation loop.</p>
+                    
+                    <h3>6.5.2 State Execution and Transitions</h3>
+                    
+                    <p>The FSM's central <code>update()</code> method executes once per simulation frame and performs three critical functions:</p>
+                    
+                    <ol>
+                      <li><strong>State Execution</strong>: Invokes the current state's handler function with delta time</li>
+                      <li><strong>Liquid Visualization Update</strong>: Positions and orients the juice visualization based on glass movement</li>
+                      <li><strong>State Transition Handling</strong>: Processes any pending state transitions</li>
+                    </ol>
+                    
+                    <p>State transitions follow a non-blocking asynchronous pattern where each state handler sets the <code>next_state</code> variable when ready to transition:</p>
+                    
+                    <pre><code>if self.next_state:
+                        print(f"Transitioning from {self.current_state} to {self.next_state}")
+                        self.current_state = self.next_state
+                        self.next_state = None
+                        self.state_start_time = time.time()</code></pre>
+                    
+                    <p>This approach ensures clean transitions while maintaining temporal awareness through the <code>state_start_time</code> variable, which enables time-based actions within states.</p>
+                    
+                    <h3>6.5.3 Liquid Physics Integration</h3>
+                    
+                    <p>During each update cycle, the FSM manages the juice visualization by calculating its position and orientation based on the glass position and robot acceleration:</p>
+                    
+                    <p> RobotBartenderStateMachine's update method manages the visual representation of juice in the glass during transport. It checks if the juice system exists and if juice_height > 0 (indicating filled juice). It retrieves the glass’s position and orientation using p.getBasePositionAndOrientation. The juice’s position is calculated as [glass_pos[0], glass_pos[1], glass_pos[2] - glass_height/2 + juice_height/2], centering it vertically within the glass. If the RobotController provides acceleration, tilt angles are computed: tilt_x = min(max(-0.2 * acc[1], -0.3), 0.3) and tilt_y = min(max(0.2 * acc[0], -0.3), 0.3), clipped to [-0.3, 0.3] radians for stability. These are converted to a quaternion for orientation. Otherwise, the glass’s orientation is used. The juice’s visual body is updated via p.resetBasePositionAndOrientation, ensuring realistic juice movement synchronized with the glass, enhancing simulation visuals.</p>
+                    <p>This integration creates a physical connection between robot movement and liquid behavior, where the tilt angle calculations:</p>
+                    
+                    <pre><code>tilt_x = min(max(-0.2 * acc[1], -0.3), 0.3)
+                    tilt_y = min(max(0.2 * acc[0], -0.3), 0.3)</code></pre>
+                    
+                    <p>transform robot acceleration vectors into constrained angular displacements, creating realistic liquid tilting effects while preventing excessive rotation (constrained to ±0.3 radians or approximately ±17 degrees).</p>
+                    
+                    <h3>6.5.4 Glass Manipulation System</h3>
+                    
+                    <p>The FSM implements three critical glass manipulation functions:</p>
+                    
+                    <ol>
+                      <li><strong>Glass Attachment</strong>: <code>attach_glass_to_robot()</code> creates a fixed constraint between the robot's end effector and the glass using PyBullet's constraint system:</li>
+                    </ol>
+                    
+                    <pre><code>self.constraint_id = p.createConstraint(
+                        parentBodyUniqueId=self.robot_id,
+                        parentLinkIndex=self.robot_controller.end_effector_index,
+                        childBodyUniqueId=self.glass_id,
+                        childLinkIndex=-1,
+                        jointType=p.JOINT_FIXED,
+                        jointAxis=[0, 0, 0],
+                        parentFramePosition=offset,
+                        childFramePosition=[0, 0, 0],
+                        childFrameOrientation=p.getQuaternionFromEuler([0, 0, 0])
+                    )</code></pre>
+                    
+                    <p>The offset vector [0, 0, 0.3] positions the glass appropriately above the robot's geometry, preventing collisions while maintaining a visually plausible carrying position.</p>
+                    
+                    <ol start="2">
+                      <li><strong>Glass Detachment</strong>: <code>detach_glass_from_robot()</code> removes the physical constraint and resets the juice visualization:</li>
+                    </ol>
+                    
+                    <pre><code>if self.constraint_id != -1:
+                        p.removeConstraint(self.constraint_id)
+                        self.constraint_id = -1</code></pre>
+                    
+                    <ol start="3">
+                      <li><strong>Glass Reset</strong>: <code>reset_glass()</code> removes any existing glass and creates a new one at the juice station:</li>
+                    </ol>
+                    
+                    <pre><code>self.glass_id, self.constraint_id, self.juice_system = create_glass(JUICE_CENTER_POS)</code></pre>
+                    
+                    <p>These manipulation functions enable the complete glass handling lifecycle from acquisition to delivery and reset.</p>
+                    
+                    <h3>6.5.5 State-Specific Behaviors</h3>
+                    
+                    <h4>Idle State and Order Processing</h4>
+                    
+                    <p>In the idle state, the system monitors for incoming orders through the <code>OrderManager</code>:</p>
+                    
+                    <pre><code>self.order_manager.load_orders()
+                    order = self.order_manager.get_next_order()
+                    if order:
+                        print(f"New order: Table {order['table']}, Juice: {order['juice']}")
+                        self.current_table_index = order["table"]
+                        self.next_state = "MOVING_TO_JUICE"</code></pre>
+                    
+                    <p>When a new order is detected, the system captures the destination table index and transitions to the juice acquisition sequence.</p>
+                    
+                    <h4>Navigation States</h4>
+                    
+                    <p>Navigation states (<code>state_moving_to_juice</code>, <code>state_moving_to_table</code>, and <code>state_returning_home</code>) utilize the robot controller's path planning and following capabilities:</p>
+                    
+                    <pre><code>current_pos = self.robot_controller.get_end_effector_position()
+                    self.robot_controller.plan_path(current_pos, destination_pos)
+                    path_completed = self.robot_controller.follow_path(dt)</code></pre>
+                    
+                    <p>The navigation logic includes:</p>
+                    
+                    <ul>
+                      <li>Planning paths only during the initial frames of a state to prevent continuous replanning</li>
+                      <li>Monitoring distance to destination using the Euclidean norm:</li>
+                    </ul>
+                    
+                    <pre><code>distance_to_goal = np.linalg.norm(np.array(current_pos) - np.array(destination_pos))</code></pre>
+                    
+                    <ul>
+                      <li>Implementing timeout-based replanning for error recovery:</li>
+                    </ul>
+                    
+                    <pre><code>if time.time() - self.state_start_time > 10.0 and distance_to_goal > 1.0:
+                        print("Warning: Robot stuck, re-planning path")
+                        self.robot_controller.plan_path(current_pos, destination_pos)
+                        self.state_start_time = time.time()</code></pre>
+                    
+                    <p>This approach ensures robust navigation even in scenarios where initial path following encounters obstacles or kinematic limitations.</p>
+                    
+                    <h4>Glass Filling State</h4>
+                    
+                    <p>The <code>state_filling_glass</code> method implements the juice filling visualization by creating a cylindrical representation of the juice:</p>
+                    
+                    <pre><code>juice_visual_id = p.createVisualShape(
+                        shapeType=p.GEOM_CYLINDER,
+                        radius=juice_radius,
+                        length=self.juice_system['juice_height'],
+                        rgbaColor=[1.0, 0.5, 0.0, 0.8]
+                    )
+                    juice_collision_id = p.createCollisionShape(
+                        shapeType=p.GEOM_CYLINDER,
+                        radius=juice_radius,
+                        height=self.juice_system['juice_height']
+                    )</code></pre>
+                    
+                    <p>The juice cylinder is positioned inside the glass with appropriate vertical offset:</p>
+                    
+                    <pre><code>basePosition=[glass_pos[0], glass_pos[1], glass_pos[2] - self.juice_system['glass_height']/2 + self.juice_system['juice_height']/2]</code></pre>
+                    
+                    <p>This positioning calculation centers the juice cylinder vertically within the lower portion of the glass, creating a visually accurate fill level representation.</p>
+                    
+                    <h4>Precision Placement States</h4>
+                    
+                    <p>The <code>state_lowering_glass</code> and <code>state_delivering_juice</code> methods implement a precise glass placement sequence that:</p>
+                    
+                    <ol>
+                      <li>Calculates an appropriate placement position on the table that's both reachable by the robot and visible to users:</li>
+                    </ol>
+                    
+                    <pre><code># Direction vector from robot to table center
+                    direction = np.array(table_xy) - np.array(robot_xy)
+                    
+                    if np.linalg.norm(direction) > 0.01:
+                        direction = direction / np.linalg.norm(direction)
+                    else:
+                        direction = np.array([1.0, 0.0])  # Default direction
+                        
+                    # Calculate a position on the table that's in front of the robot
+                    glass_xy = table_xy - direction * 0.2  # Move 20cm from table center toward robot</code></pre>
+                    
+                    <ol start="2">
+                      <li>Detaches the glass from the robot once positioning is complete</li>
+                      <li>Explicitly positions the glass on the table surface:</li>
+                    </ol>
+                    
+                    <pre><code>new_glass_pos = [
+                        table_pos[0],  # Center X of table
+                        table_pos[1],  # Center Y of table
+                        table_pos[2] + 0.1  # Height above table
+                    ]
+                    
+                    p.resetBasePositionAndOrientation(
+                        self.glass_id,
+                        new_glass_pos,
+                        p.getQuaternionFromEuler([0, 0, 0])
+                    )</code></pre>
+                    
+                    <p>This precise placement sequence ensures reliable delivery regardless of robot kinematic limitations.</p>
+                    
+                    <h3>6.5.6 Integration with Robot Control System</h3>
+                    
+                    <p>The state machine integrates with the <code>RobotController</code> component through several interface points:</p>
+                    
+                    <ul>
+                      <li>Position tracking via <code>get_end_effector_position()</code></li>
+                      <li>Path planning through <code>plan_path(start, goal)</code></li>
+                      <li>Path execution via <code>follow_path(dt)</code></li>
+                      <li>Acceleration data access for juice tilt simulation</li>
+                      <li>Status notification through <code>set_carrying_juice(boolean)</code></li>
+                    </ul>
+                    
+                    <p>This integration provides a clean separation between high-level task management (FSM) and low-level robot control, enhancing system modularity and maintainability.</p>
+                    
+                    <h3>6.5.7 Error Handling and Recovery</h3>
+                    
+                    <p>The FSM implements several error handling mechanisms:</p>
+                    
+                    <ul>
+                      <li><strong>Path Planning Timeouts</strong>: States with navigation components implement timeout-based replanning to recover from stuck conditions</li>
+                      <li><strong>Exception Handling</strong>: Critical operations are wrapped in try-except blocks:</li>
+                    </ul>
+                    
+                    <pre><code>try:
+                        # Critical operation
+                    except Exception as e:
+                        print(f"Error: {e}")</code></pre>
+                    
+                    <ul>
+                      <li><strong>Distance-Based Navigation Validation</strong>: Navigation states monitor distance to goal as a secondary validation metric beyond path completion signals</li>
+                      <li><strong>State Timeout Transitions</strong>: Time-based constraints prevent indefinite state persistence:</li>
+                    </ul>
+                    
+                    <pre><code>if time.time() - self.state_start_time > 1.5:
+                        # Perform operation and transition</code></pre>
+                    
+                    <p>These mechanisms collectively ensure the system can recover from common failure modes including planning failures, constraint errors, and timing anomalies.</p>
+                    
+                    <h3>6.5.8 System Performance and Optimization</h3>
+                    
+                    <p>The FSM incorporates several performance optimizations:</p>
+                    
+                    <ul>
+                      <li><strong>Time-Limited Path Planning</strong>: Planning operations are restricted to state initialization to prevent computational overhead from continuous replanning</li>
+                      <li><strong>Direct Position Control</strong>: For critical positioning operations (glass placement on tables), direct position commands supplement path following to ensure precision</li>
+                      <li><strong>State Transition Logging</strong>: Diagnostic output tracks state transitions:</li>
+                    </ul>
+                    
+                    <pre><code>print(f"Transitioning from {self.current_state} to {self.next_state}")</code></pre>
+                    
+                    <ul>
+                      <li><strong>Distance Logging</strong>: Navigation progress is monitored through distance metrics:</li>
+                    </ul>
+                    
+                    <pre><code>print(f"Distance to juice center: {distance_to_goal:.3f}, Path completed: {path_completed}")</code></pre>
+                    
+                    <p>These diagnostics provide operational visibility while enabling performance analysis and optimization.</p>
+                    
+                    <h3>6.5.9 Integration with Simulation Environment</h3>
+                    
+                    <p>The FSM directly interacts with PyBullet's physics environment through several mechanisms:</p>
+                    
+                    <ul>
+                      <li><strong>Body Position and Orientation Queries</strong>:</li>
+                    </ul>
+                    
+                    <pre><code>glass_pos, glass_orn = p.getBasePositionAndOrientation(self.glass_id)</code></pre>
+                    
+                    <ul>
+                      <li><strong>Constraint Management</strong>:</li>
+                    </ul>
+                    
+                    <pre><code>self.constraint_id = p.createConstraint(...)</code></pre>
+                    
+                    <ul>
+                      <li><strong>Direct Position Control</strong>:</li>
+                    </ul>
+                    
+                    <pre><code>p.resetBasePositionAndOrientation(
+                        self.glass_id,
+                        new_glass_pos,
+                        p.getQuaternionFromEuler([0, 0, 0])
+                    )</code></pre>
+                    
+                    <ul>
+                      <li><strong>Visual and Collision Shape Creation</strong>:</li>
+                    </ul>
+                    
+                    <pre><code>juice_visual_id = p.createVisualShape(
+                        shapeType=p.GEOM_CYLINDER,
+                        radius=juice_radius,
+                        length=self.juice_system['juice_height'],
+                        rgbaColor=[1.0, 0.5, 0.0, 0.8]
+                    )</code></pre>
+                    
+                    <p>This direct integration enables high-fidelity visualization while maintaining physics-based interactions between the robot, glass, juice, and environment.</p>
+                    <p>The Finite State Machine architecture provides a robust, modular framework for the robot bartender system that:</p>
+                    <ol>
+                      <li>Decomposes the complex juice service task into discrete, manageable states</li>
+                      <li>Maintains clean separation between high-level task sequencing and low-level control</li>
+                      <li>Implements comprehensive error detection and recovery mechanisms</li>
+                      <li>Creates seamless integration between robot control, physics simulation, and visual elements</li>
+                      <li>Provides operational visibility through targeted diagnostic output</li>
+                    </ol>
+                    
+                    <p>This architecture ensures reliable operation while facilitating system extension and refinement through the addition of new states or modification of existing state behaviors without requiring changes to the underlying state management mechanism.</p>
+
+                    <h2 id="methodology-obstacle">6.6 Obstacle Detection</h2>
+                    <p>The Image-Based Obstacle Detection module serves as a critical component in the autonomous navigation system, leveraging computer vision techniques to identify and track obstacles in the robot's environment. This section outlines the methodology employed for obstacle detection using virtual cameras, the underlying mathematical framework, and integration with the path planning subsystem.</p>
+                    <h3 id="camera-configuration">6.6.1 Camera Configuration and Image Acquisition</h3>
+                    <p>The obstacle detection system utilizes a virtual camera setup with configurable resolution parameters. The system processes both RGB and depth imagery to achieve robust obstacle detection in three-dimensional space. The camera is configured with specific view and projection matrices that define its position and field of view within the simulation environment.</p>
+                    <p>The view matrix is computed based on the camera's position in world coordinates, the target point it focuses on, and its orientation vector. This transformation is essential for mapping the 3D world to the camera's perspective:</p>
+
+                    <div class="equation">
+                    \begin{align}
+                    V = \begin{pmatrix}
+                    R & -R \cdot t \\
+                    0 & 1
+                    \end{pmatrix}
+                    \end{align}
+                    </div>
+
+                    <p>Where \(V\) represents the view matrix, \(R\) is the rotation matrix derived from the camera's orientation, and \(t\) is the translation vector representing the camera's position. The implementation sets the camera at position [5, 5, 5] targeting the origin [0, 0, 0] with an up vector of [0, 0, 1].</p>
+
+                    <p>The projection matrix employs a perspective projection model using a field-of-view (FOV) approach, which transforms the camera's view frustum into a canonical view volume:</p>
+
+                    <div class="equation">
+                    \begin{align}
+                    P = \begin{pmatrix}
+                    \frac{1}{\tan(fov/2) \cdot aspect} & 0 & 0 & 0 \\
+                    0 & \frac{1}{\tan(fov/2)} & 0 & 0 \\
+                    0 & 0 & \frac{-(far+near)}{far-near} & \frac{-2 \cdot far \cdot near}{far-near} \\
+                    0 & 0 & -1 & 0
+                    \end{pmatrix}
+                    \end{align}
+                    </div>
+
+                    <p>The parameters include a 60° field of view, an aspect ratio calculated from the image dimensions, and near and far clipping planes at 0.1 and 100.0 units respectively. This configuration ensures appropriate perspective distortion and depth resolution across the detection range.</p>
+
+                    <h3 id="image-processing">6.6.2 Image Processing and Obstacle Identification</h3>
+
+                    <p>The image acquisition process captures both RGB and depth data from the virtual camera. The RGB image provides color and texture information, while the depth image encodes distance information from the camera to objects in the scene. The images are acquired through the physics engine's camera interface and reshaped into appropriate array formats for processing:</p>
+
+                    <div class="equation">
+                    \begin{align}
+                    I_{RGB} &= \text{reshape}(data_{RGB}, [height, width, 4])[:,:,:3] \\
+                    I_{depth} &= \text{reshape}(data_{depth}, [height, width])
+                    \end{align}
+                    </div>
+
+                    <p>Where \(I_{RGB}\) represents the processed RGB image (with alpha channel removed) and \(I_{depth}\) represents the depth image. These images serve as the foundation for the obstacle detection algorithm.</p>
+
+                    <p>For each frame, the obstacle detection algorithm processes the captured images to identify potential obstacles in the environment. In the current implementation, the system references a set of known obstacle parameters for simulation purposes, but in a real-world deployment, this would be replaced with computer vision algorithms such as semantic segmentation or instance detection.</p>
+
+                    <h3 id="depth-processing">6.6.3 Depth Processing and 3D Reconstruction</h3>
+
+                    <p>A critical aspect of the obstacle detection system is converting the 2D image coordinates and depth information into 3D world coordinates. This conversion allows the system to accurately localize obstacles in the robot's operational space. The process follows these mathematical steps:</p>
+
+                    <div class="equation">
+                    \begin{align}
+                    x_{world} &= \frac{(x_{pixel} - cx) \cdot z_{depth}}{f_x} \\
+                    y_{world} &= \frac{(y_{pixel} - cy) \cdot z_{depth}}{f_y} \\
+                    z_{world} &= z_{depth}
+                    \end{align}
+                    </div>
+
+                    <p>Where \((x_{pixel}, y_{pixel})\) are the pixel coordinates in the image, \(z_{depth}\) is the depth value at that pixel, \((cx, cy)\) represents the principal point (typically the center of the image), and \(f_x, f_y\) are the focal lengths derived from the projection matrix. This transformation allows the system to map detected obstacles from image space to world coordinates.</p>
+
+                    <h3 id="obstacle-representation">6.6.4 Obstacle Representation and Tracking</h3>
+
+                    <p>Detected obstacles are represented as structured data objects containing position and dimensional information. Each obstacle is characterized by:</p>
+
+                    <ul>
+                        <li>Position vector \(\vec{p} = [x, y, z]\) representing the obstacle's center in world coordinates</li>
+                        <li>Size parameter \(s\) representing the obstacle's dimensional extent (e.g., radius for spherical obstacles)</li>
+                    </ul>
+
+                    <p>This representation provides sufficient information for the path planning algorithm to compute collision-free trajectories. The system maintains a list of the most recently detected obstacles, allowing for temporal filtering and tracking of obstacles across frames:</p>
+
+                    <div class="equation">
+                    \begin{align}
+                    O_t = \{({\vec{p}_1, s_1}), ({\vec{p}_2, s_2}), ..., ({\vec{p}_n, s_n})\}
+                    \end{align}
+                    </div>
+
+                    <p>Where \(O_t\) represents the set of obstacles detected at time \(t\), with each obstacle defined by its position vector \(\vec{p}_i\) and size \(s_i\).</p>
+
+                    <h3 id="planner-integration">6.6.5 Integration with Path Planning</h3>
+
+                    <p>The obstacle detection module interfaces directly with the path planning subsystem to ensure that newly detected obstacles are incorporated into the planning process. When new obstacles are detected, the module invokes the path planner's obstacle update mechanism, providing a formatted list of obstacle parameters:</p>
+
+                    <div class="equation">
+                    \begin{align}
+                    O_{planner} = \{[x_1, y_1, z_1, s_1], [x_2, y_2, z_2, s_2], ..., [x_n, y_n, z_n, s_n]\}
+                    \end{align}
+                    </div>
+
+                    <p>This integration ensures that the path planner always operates with the most current obstacle information, allowing it to recompute paths when necessary to avoid newly detected obstacles. The tight coupling between obstacle detection and path planning is essential for reactive navigation in dynamic environments.</p>
+
+                    <h3 id="performance-considerations">6.6.6 Performance Considerations</h3>
+
+                    <p>The obstacle detection system is designed with performance considerations in mind. The image resolution (320×240 by default) balances processing requirements with detection accuracy. Higher resolutions provide more detailed obstacle information but require additional computational resources. The system parameters can be adjusted based on the computational capabilities of the target platform and the specific requirements of the navigation task.</p>
+
+                    <p>The implementation utilizes hardware-accelerated rendering (ER_BULLET_HARDWARE_OPENGL) to maximize performance when capturing camera images. This approach leverages GPU acceleration for image processing tasks, reducing the computational burden on the CPU and allowing for real-time obstacle detection.</p>
+
+                    <h3 id="future-enhancements">6.6.7 Future Enhancements</h3>
+
+                    <p>While the current implementation provides robust obstacle detection capabilities, several potential enhancements could further improve the system:</p>
+
+                    <ul>
+                        <li><strong>Dynamic Obstacle Tracking:</strong> Implementing velocity estimation for moving obstacles to predict their future positions</li>
+                        <li><strong>Multiple Camera Integration:</strong> Utilizing multiple cameras for a wider field of view and more accurate obstacle localization through triangulation</li>
+                        <li><strong>Machine Learning Approaches:</strong> Incorporating deep learning models for more sophisticated obstacle classification and segmentation</li>
+                        <li><strong>Uncertainty Handling:</strong> Developing probabilistic representations of obstacles to account for sensor noise and detection uncertainty</li>
+                    </ul>
+
+                    <p>These enhancements would further increase the robustness and flexibility of the obstacle detection system, particularly in complex and dynamic environments.</p>
+                
+                    <h2 id="methodology-order-management">6.7 Order Management System</h2>
+
+                <p>The Order Management System serves as the interface between the customer-facing web application and the robot bartender's execution system. This module enables seamless communication between the web-based ordering system and the physical robot, managing the queue of drink orders and ensuring their proper execution without data collisions.</p>
+
+                <h3 id="web-interface-integration">6.7.1 Web Interface Integration</h3>
+
+                <p>The customer interaction occurs through a web-based interface served by a Flask application. This interface allows customers to place juice orders from designated table locations, creating a natural human-robot interaction paradigm within the serving environment.</p>
+
+                <p>The web interface provides a simple form where users can select:</p>
+                <ul>
+                    <li>Table number (identifying the order's destination)</li>
+                    <li>Juice type (orange, apple, or grape)</li>
+                </ul>
+
+                <p>When a customer submits an order through the web interface, the following process occurs:</p>
+
+                <ol>
+                    <li>The browser-side JavaScript captures the form submission event</li>
+                    <li>The order data is formatted as a JSON object</li>
+                    <li>A POST request is sent to the server's <code>/add_order</code> endpoint</li>
+                    <li>The server processes the request and updates the central data store</li>
+                </ol>
+
+                <p>This approach creates a loosely coupled system where the web interface is responsible only for order creation and visualization, while the order management system handles order processing and execution control.</p>
+
+                <h3 id="flask-server-architecture">6.7.2 Flask Server Architecture</h3>
+
+                <p>The Flask server functions as the communication hub between the web interface and the robot control system. It provides several key endpoints:</p>
+
+                <ul>
+                    <li><code>/</code> - Serves the main HTML interface</li>
+                    <li><code>/data.json</code> - Provides access to the current order queue</li>
+                    <li><code>/add_order</code> - Accepts and processes new order submissions</li>
+                </ul>
+
+                <p>The server maintains order persistence through a JSON file (<code>data.json</code>), which acts as a simple database for the system. This design choice offers several advantages:</p>
+
+                <ul>
+                    <li>No need for complex database setup</li>
+                    <li>Human-readable data format for debugging</li>
+                    <li>Easy integration with both web and robot control systems</li>
+                    <li>Persistent storage that survives server restarts</li>
+                </ul>
+
+                <p>The Flask server operates independently from the simulation environment, allowing for distributed operation where orders can be placed from any networked device while the robot simulation runs on dedicated hardware.</p>
+
+                <h3 id="concurrent-access-management">6.7.3 Concurrent Access Management</h3>
+
+                <p>A critical challenge in this architecture is handling concurrent access to the order data. Since both the web server and the robot control system need to read and write to the same data store, there's a potential for race conditions and data corruption. The system employs file-locking mechanisms to prevent these issues:</p>
+
+                <div class="equation">
+                \begin{align}
+                T_{\text{access}} = \begin{cases}
+                \text{Granted}, & \text{if lock is available} \\
+                \text{Blocked}, & \text{if lock is held by another process}
+                \end{cases}
+                \end{align}
+                </div>
+
+                <p>The <code>FileLock</code> utility is used to implement this locking mechanism, ensuring that only one process can modify the <code>data.json</code> file at any given time. When the Flask server needs to update the order queue (either adding new orders or reading the current state), it first acquires a lock on the file:</p>
+
+                <ol>
+                    <li>The process attempts to acquire the lock file (<code>data.json.lock</code>)</li>
+                    <li>If successful, it performs its read or write operation</li>
+                    <li>The lock is released automatically when the operation completes</li>
+                    <li>If another process holds the lock, the current process waits until the lock is released</li>
+                </ol>
+
+                <p>Additionally, the server ensures data integrity through explicit file synchronization commands:</p>
+
+                <ul>
+                    <li><code>flush()</code> - Ensures that Python's internal buffers are written to the operating system</li>
+                    <li><code>fsync()</code> - Forces the operating system to write the data to physical storage</li>
+                </ul>
+
+                <p>These mechanisms ensure that order data remains consistent even under high concurrency conditions.</p>
+
+                <h3 id="order-manager-implementation">6.7.4 Order Manager Implementation</h3>
+
+                <p>The <code>OrderManager</code> class provides the robot controller with an interface to access and manipulate the order queue. Its key responsibilities include:</p>
+
+                <ul>
+                    <li>Loading orders from the data store</li>
+                    <li>Providing access to the next pending order</li>
+                    <li>Marking orders as complete</li>
+                    <li>Updating the data store to reflect order completion</li>
+                </ul>
+
+                <p>The <code>OrderManager</code> initializes with an empty order list and no current order. The <code>load_orders()</code> method retrieves the current state from the data store, adding unique identifiers to orders if they don't already have them:</p>
+
+                <div class="equation">
+                \begin{align}
+                \text{ID}_{\text{order}} = \begin{cases}
+                \text{ID}_{\text{existing}}, & \text{if ID exists} \\
+                i + 1, & \text{if ID doesn't exist}
+                \end{cases}
+                \end{align}
+                </div>
+
+                <p>This ensures that each order can be uniquely identified within the system, which is essential for proper tracking and completion.</p>
+
+                <p>When the robot is ready to process an order, it calls <code>get_next_order()</code>, which returns the first order in the queue (if any) and marks it as the current order. This method follows a First-In-First-Out (FIFO) approach:</p>
+
+                <div class="equation">
+                \begin{align}
+                \text{Next Order} = \begin{cases}
+                \text{Orders}[0], & \text{if Orders is not empty} \\
+                \text{None}, & \text{if Orders is empty}
+                \end{cases}
+                \end{align}
+                </div>
+
+                <p>Once the robot has successfully delivered the order, it calls <code>complete_current_order()</code>, which:</p>
+
+                <ol>
+                    <li>Identifies the current order in the order list</li>
+                    <li>Removes it from the list</li>
+                    <li>Updates the data store to reflect this change</li>
+                    <li>Resets the current order reference</li>
+                </ol>
+
+                <p>This process ensures that completed orders don't remain in the queue and that the data store accurately reflects the current state of pending orders.</p>
+
+                <h3 id="collision-prevention">6.7.5 Collision Prevention Between Simulation and Server</h3>
+
+                <p>One of the key design challenges is preventing collisions between the robot simulation (which reads and marks orders as complete) and the web server (which adds new orders). The system employs several strategies to address this:</p>
+
+                <h4>Temporal Separation</h4>
+
+                <p>The robot controller typically operates on a different refresh cycle than the web interface. The <code>OrderManager</code> loads orders at specific points in the robot's control loop, creating natural temporal separation between operations:</p>
+
+                <div class="equation">
+                \begin{align}
+                T_{\text{robot}} &= \text{Time between robot order processing cycles} \\
+                T_{\text{web}} &= \text{Time between web interface refreshes}
+                \end{align}
+                </div>
+
+                <p>This temporal separation reduces the likelihood of simultaneous access attempts but doesn't eliminate them entirely.</p>
+
+                <h4>Transactional Approach</h4>
+
+                <p>Both the robot controller and web server treat order manipulations as atomic transactions. When completing an order, the <code>OrderManager</code> handles all necessary steps within a single transaction:</p>
+
+                <ol>
+                    <li>Read the current state</li>
+                    <li>Modify the state (remove the completed order)</li>
+                    <li>Write the updated state back to storage</li>
+                </ol>
+
+                <p>This transactional approach, combined with file locking, ensures data consistency even when operations occur in close temporal proximity.</p>
+
+                <h4>Exception Handling</h4>
+
+                <p>Both systems incorporate robust exception handling for file operations. If a file operation fails (for example, due to a lock timeout or I/O error), the system can recover gracefully:</p>
+
+                <ul>
+                    <li>Failed reads default to an empty order list</li>
+                    <li>Failed writes are logged but don't crash the system</li>
+                    <li>Temporary file access issues can be resolved on subsequent attempts</li>
+                </ul>
+
+                <p>This resilience ensures that temporary system issues don't result in permanent data corruption or system failure.</p>
+
+                <h3 id="system-integration">6.7.6 System Integration</h3>
+
+                <p>The Order Management System integrates with other robot subsystems to execute the complete order fulfillment workflow:</p>
+
+                <ol>
+                    <li><strong>Order Selection:</strong> The Order Manager provides the next order to the Motion Planning module</li>
+                    <li><strong>Navigation:</strong> The robot navigates to the appropriate drink preparation station based on the juice type</li>
+                    <li><strong>Preparation:</strong> The robot prepares the requested juice</li>
+                    <li><strong>Delivery:</strong> The robot navigates to the specified table location</li>
+                    <li><strong>Completion:</strong> After successful delivery, the Order Manager marks the order as complete</li>
+                </ol>
+
+                <p>This integration creates a complete end-to-end workflow from customer order placement through to delivery and order completion. While the current implementation uses a simple file-based approach, the system architecture is designed to scale with increased load:</p>
+
+                <ul>
+                    <li><strong>Database Integration:</strong> The JSON file could be replaced with a proper database for higher volume operations</li>
+                    <li><strong>Multiple Robots:</strong> The order queue could be enhanced to support multiple robot servers, including load balancing and territory assignment</li>
+                    <li><strong>Enhanced Concurrency:</strong> More sophisticated locking mechanisms could be implemented for higher throughput</li>
+                </ul>
+
+                <p>These enhancements would maintain the same basic interface while improving the system's performance under higher load conditions.</p>
+
+                <h3 id="--conclusion">6.7.7 Conclusion</h3>
+
+                <p>The Order Management System provides a robust bridge between customer interaction and robot execution. Its design emphasizes simplicity, reliability, and data integrity, ensuring that the robot bartender can consistently deliver the correct drinks to the correct tables. By addressing the challenges of concurrent access and maintaining a clean separation of concerns, the system provides a solid foundation for the robot's high-level decision making and task execution.</p>
+                
+                <h2 id="methodology-robot-control">5.8 Robot Control System</h2>
+
+                <p>The Robot Control System represents the core component responsible for translating high-level navigation objectives into precise robot movements. This section details the methodological approach to robot control, including joint management, path following algorithms, and dynamic behavior adjustments based on the robot's operational state.</p>
+
+                <h3 id="robot-initialization">5.8.1 Robot Joint Configuration and Initialization</h3>
+
+                <p>The control system begins with a comprehensive initialization process that analyzes the robot's kinematic structure. This process identifies and categorizes all available joints to establish effective control parameters:</p>
+
+                <ol>
+                    <li>Joint Discovery: The system queries the physics engine to determine the number and properties of all joints in the robot model</li>
+                    <li>Joint Classification: Each joint is categorized based on its mechanical type (revolute, prismatic, fixed, etc.)</li>
+                    <li>Constraint Identification: Joint limits are identified and, when necessary, adjusted to ensure proper range of motion</li>
+                </ol>
+
+                <p>The initialization process is particularly important as it enables the controller to work with various robot configurations without manual reconfiguration. The system dynamically identifies movable joints (those that can be actively controlled), creating a subset of indices that will be used for motion control:</p>
+
+                <div class="equation">
+                \begin{align}
+                J_{\text{movable}} = \{j \in J_{\text{all}} \mid \text{type}(j) \in \{\text{REVOLUTE, PRISMATIC}\}\}
+                \end{align}
+                </div>
+
+                <p>Where \(J_{\text{movable}}\) represents the set of controllable joints and \(J_{\text{all}}\) represents all joints in the robot. This approach allows the controller to adapt to different robot morphologies automatically.</p>
+
+                <p>Additionally, joint limits are verified and, if necessary, adjusted to provide adequate range of motion. For joints where the upper limit is incorrectly set below the lower limit, the system applies standard rotational limits:</p>
+
+                <div class="equation">
+                \begin{align}
+                \text{if } \theta_{\text{upper}} < \theta_{\text{lower}} \text{ then } 
+                \begin{cases}
+                \theta_{\text{lower}} = -\pi \\
+                \theta_{\text{upper}} = \pi
+                \end{cases}
+                \end{align}
+                </div>
+
+                <p>This ensures that all joints have valid operational ranges, preventing potential control issues during movement execution.</p>
+
+                <h3 id="end-effector-tracking">5.8.2 End-Effector Position Tracking</h3>
+
+                <p>For navigation and control purposes, the system must continuously track the robot's position in 3D space. Depending on the robot's configuration, this tracking may focus on either:</p>
+
+                <ul>
+                    <li>The position of a specific end-effector (for robots with articulated arms)</li>
+                    <li>The base position (for mobile robots like the R2D2 model used in this implementation)</li>
+                </ul>
+
+                <p>The position tracking mechanism includes robust error handling to ensure continuous operation even in cases where the physics engine temporarily fails to return valid position data. This is achieved through a fallback mechanism:</p>
+
+                <div class="equation">
+                \begin{align}
+                \vec{p}(t) = 
+                \begin{cases}
+                \vec{p}_{\text{base}}(t), & \text{if end_effector_index = -1} \\
+                \vec{p}_{\text{link}}(t, \text{end_effector_index}), & \text{otherwise}
+                \end{cases}
+                \end{align}
+                </div>
+
+                <p>When position tracking fails due to simulation inconsistencies or other errors, the system falls back to a default position (typically near the origin but above the ground plane), allowing control algorithms to continue functioning until valid position data becomes available again.</p>
+
+                <h3 id="path-planning-integration">5.8.3 Path Planning Integration</h3>
+
+                <p>The Robot Controller interfaces with a Novel Path Planner that generates collision-free paths through the environment. The integration follows these steps:</p>
+
+                <ol>
+                    <li>The controller passes current robot position and desired goal position to the path planner</li>
+                    <li>The planner generates a series of waypoints that avoid obstacles</li>
+                    <li>If planning fails (e.g., no valid path found), a simple linear interpolation fallback is used</li>
+                    <li>The generated path is stored and tracked by the controller</li>
+                </ol>
+
+                <p>The fallback mechanism for path planning is particularly important for robustness. When the path planner cannot find a valid path, the system creates a simplified direct path using linear interpolation between start and goal positions:</p>
+
+                <div class="equation">
+                \begin{align}
+                \vec{p}_i = (1-t_i)\vec{p}_{\text{start}} + t_i\vec{p}_{\text{goal}}, \quad t_i = \frac{i}{n-1}, \quad i \in \{0,1,...,n-1\}
+                \end{align}
+                </div>
+
+                <p>Where \(n\) is the number of waypoints (5 in the current implementation). This ensures that navigation always proceeds, even in challenging environments, though collision avoidance is not guaranteed in this fallback mode.</p>
+
+                <h3 id="waypoint-following">5.8.4 Waypoint Following Algorithm</h3>
+
+                <p>The core of the robot control system is the waypoint following algorithm, which guides the robot through the generated path. This algorithm operates on a single waypoint at a time, moving the robot incrementally toward each waypoint until it reaches the threshold distance:</p>
+
+                <ol>
+                    <li>Calculate direction vector from current position to target waypoint</li>
+                    <li>Normalize direction vector to create a unit vector</li>
+                    <li>Scale by robot speed to determine velocity vector</li>
+                    <li>Calculate target position by applying velocity over time step</li>
+                    <li>Apply position constraints to keep robot within operational bounds</li>
+                    <li>Execute movement through physics engine commands</li>
+                </ol>
+
+                <p>Mathematically, the target position for each time step is calculated as:</p>
+
+                <div class="equation">
+                \begin{align}
+                \vec{d} &= \vec{p}_{\text{target}} - \vec{p}_{\text{current}} \\
+                \hat{d} &= \frac{\vec{d}}{||\vec{d}||} \\
+                \vec{v} &= \hat{d} \cdot v_{\text{current}} \\
+                \vec{p}_{\text{next}} &= \vec{p}_{\text{current}} + \vec{v} \cdot \Delta t \cdot 2.0 \\
+                \vec{p}_{\text{next}} &= \text{clip}(\vec{p}_{\text{next}}, \vec{p}_{\text{min}}, \vec{p}_{\text{max}})
+                \end{align}
+                </div>
+
+                <p>Where \(\Delta t\) is the simulation time step, \(v_{\text{current}}\) is the robot's current speed (which varies based on whether it is carrying a drink), and the scaling factor 2.0 is used to adjust the responsiveness of the robot's movement.</p>
+
+                <p>The implementation adapts to different robot types through its movement execution strategy:</p>
+
+                <ul>
+                    <li><strong>For mobile base robots (end_effector_index = -1):</strong> 
+                        <ul>
+                            <li>Direct base position and orientation control</li>
+                            <li>Orientation (yaw) derived from movement direction</li>
+                            <li>Wheel joint velocity control for realistic movement simulation</li>
+                        </ul>
+                    </li>
+                    <li><strong>For articulated robots:</strong>
+                        <ul>
+                            <li>Inverse Kinematics (IK) calculation to determine joint angles</li>
+                            <li>Position control of individual joints to achieve target end-effector position</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <p>The algorithm includes robust error checking for IK failures, ensuring that the robot can gracefully handle situations where the target position is kinematically unreachable.</p>
+
+                <h3 id="dynamic-state-tracking">5.8.5 Dynamic State Tracking and Control</h3>
+
+                <p>To enable more sophisticated control, especially when carrying fragile items like drinks, the system tracks the robot's dynamic state including:</p>
+
+                <ul>
+                    <li>Position</li>
+                    <li>Velocity</li>
+                    <li>Acceleration</li>
+                </ul>
+
+                <p>These state variables are computed using finite difference approximations:</p>
+
+                <div class="equation">
+                \begin{align}
+                \vec{v}(t) &= \frac{\vec{p}(t) - \vec{p}(t-\Delta t)}{\Delta t} \\
+                \vec{a}(t) &= \frac{\vec{v}(t) - \vec{v}(t-\Delta t)}{\Delta t}
+                \end{align}
+                </div>
+
+                <p>Where \(\Delta t\) represents the elapsed real-time between measurements. This approach allows for smoother motion estimates compared to using the fixed simulation time step, as it accounts for variations in computational load that might affect the simulation rate.</p>
+
+                <h3 id="lqr-control">5.8.6 Linear Quadratic Regulator Control</h3>
+
+                <p>When the robot is carrying a drink (flagged by the <code>carrying_juice</code> state variable), it activates a Linear Quadratic Regulator (LQR) controller to optimize its motion characteristics. The LQR controller balances between:</p>
+
+                <ul>
+                    <li>Following the desired path accurately</li>
+                    <li>Minimizing sudden accelerations that might spill the drink</li>
+                </ul>
+
+                <p>The LQR formulation solves the optimal control problem by minimizing the cost function:</p>
+
+                <div class="equation">
+                \begin{align}
+                J = \int_{0}^{\infty} \left( \mathbf{x}^T(t) \mathbf{Q} \mathbf{x}(t) + \mathbf{u}^T(t) \mathbf{R} \mathbf{u}(t) \right) dt
+                \end{align}
+                </div>
+
+                <p>Where \(\mathbf{x}\) represents the state vector (position and velocity errors), \(\mathbf{u}\) represents the control inputs (accelerations), and \(\mathbf{Q}\) and \(\mathbf{R}\) are weighting matrices that penalize state error and control effort, respectively.</p>
+
+                <p>The LQR controller modifies the robot's acceleration to produce smoother trajectories, which is particularly important when carrying liquids. This results in trajectories that may take slightly longer but have reduced jerk (rate of change of acceleration), preventing drink spillage.</p>
+
+                <h3 id="adaptive-speed-control">5.8.7 Adaptive Speed Control</h3>
+
+                <p>The robot controller implements an adaptive speed control mechanism that adjusts based on the robot's operational state. Two key speeds are defined:</p>
+
+                <ul>
+                    <li><strong>Empty Robot Speed (1.5 units/sec):</strong> Used when the robot is navigating without carrying a drink</li>
+                    <li><strong>Full Robot Speed (0.8 units/sec):</strong> Used when the robot is carrying a drink</li>
+                </ul>
+
+                <p>This adaptation allows the robot to move efficiently when empty while ensuring careful movement when carrying drinks:</p>
+
+                <div class="equation">
+                \begin{align}
+                v_{\text{current}} = 
+                \begin{cases}
+                v_{\text{full}}, & \text{if carrying_juice = TRUE} \\
+                v_{\text{empty}}, & \text{if carrying_juice = FALSE}
+                \end{cases}
+                \end{align}
+                </div>
+
+                <p>The controller exposes a method to update this state, allowing higher-level task controllers to notify the motion controller when the robot's payload status changes.</p>
+
+                <h3 id="path-following-coordination">5.8.8 Path Following Coordination</h3>
+
+                <p>To navigate complete paths, the controller maintains state about the current path and which waypoint is being targeted. The path following algorithm:</p>
+
+                <ol>
+                    <li>Checks if a valid path exists</li>
+                    <li>Targets the current waypoint index</li>
+                    <li>When a waypoint is reached, increments the index to target the next waypoint</li>
+                    <li>Reports completion when the final waypoint is reached</li>
+                </ol>
+
+                <p>This approach enables hierarchical control, where higher-level task planners can issue commands like "go to the preparation station" and the controller handles the details of path planning and execution.</p>
+
+                <div class="equation">
+                \begin{align}
+                \text{path_complete} = 
+                \begin{cases}
+                \text{TRUE}, & \text{if current_waypoint_idx} \geq \text{len(path)} \\
+                \text{FALSE}, & \text{otherwise}
+                \end{cases}
+                \end{align}
+                </div>
+
+                <p>The waypoint threshold parameter (0.1 units in the current implementation) determines how close the robot must get to a waypoint before considering it reached. This parameter represents a balance between path accuracy and smooth motion - too small a value might cause the robot to slow down excessively to hit waypoints precisely, while too large a value might cause significant path deviation.</p>
+
+                <h3 id="spatial-constraints">5.8.9 Spatial Constraints and Safety Bounds</h3>
+
+                <p>To ensure the robot operates within safe boundaries, the controller applies spatial constraints to all calculated positions:</p>
+
+                <div class="equation">
+                \begin{align}
+                x_{\text{constrained}} &= \text{clip}(x, -5, 5) \\
+                y_{\text{constrained}} &= \text{clip}(y, -5, 5) \\
+                z_{\text{constrained}} &= \text{clip}(z, 0.2, 1.0)
+                \end{align}
+                </div>
+
+                <p>These constraints serve multiple purposes:</p>
+
+                <ul>
+                    <li>Preventing the robot from leaving the operational area (±5 units in x and y)</li>
+                    <li>Keeping the robot a safe distance above the ground (minimum height of 0.2 units)</li>
+                    <li>Limiting the maximum height to prevent unnecessary vertical movement (maximum 1.0 units)</li>
+                </ul>
+
+                <p>The constraints act as a safety layer, ensuring that even if the path planner or other components request invalid positions, the robot will remain within its safe operational envelope.</p>
+
+                <h3 id="wheel-simulation">5.8.10 Wheel Simulation for Mobile Robots</h3>
+
+                <p>For wheeled mobile robots, the controller identifies wheel joints based on naming conventions and applies appropriate rotation velocities to simulate realistic movement. This approach creates visually authentic robot movement while maintaining precise position control:</p>
+
+                <ul>
+                    <li>Wheel joints are identified by name pattern matching</li>
+                    <li>A constant velocity is applied when the robot is in motion</li>
+                    <li>Velocity control mode is used rather than position control for continuous rotation</li>
+                </ul>
+
+                <p>This detail enhances the realism of the simulation without compromising control accuracy, as the base position control remains the primary navigation mechanism.</p>
+
+                <h3 id="integration-with-task-planning">5.8.11 Integration with Task Planning</h3>
+
+                <p>The Robot Controller is designed to interface with higher-level task planning systems through a simple API that includes:</p>
+
+                <ul>
+                    <li><code>plan_path(start, goal)</code>: Generate a new navigation path</li>
+                    <li><code>follow_path(dt)</code>: Execute the current path</li>
+                    <li><code>set_carrying_juice(carrying)</code>: Update payload status</li>
+                </ul>
+
+                <p>This interface allows task planners to focus on high-level goals (e.g., "pick up juice," "deliver to table") while delegating the details of motion planning and execution to the controller. The clean separation of concerns enhances system modularity and maintainability.</p>
+
+                <h3 id="conclusion">5.8.12 Conclusion</h3>
+
+                <p>The Robot Control System represents a comprehensive approach to robot movement coordination that balances several key considerations:</p>
+
+                <ul>
+                    <li>Robustness through fallback mechanisms and error handling</li>
+                    <li>Adaptability to different robot morphologies and tasks</li>
+                    <li>Precision in path following and obstacle avoidance</li>
+                    <li>Safety through spatial constraints and collision prevention</li>
+                    <li>Task awareness through state-dependent control parameters</li>
+                </ul>
+
+                <p>This methodological approach ensures reliable robot operation across a variety of scenarios, from simple navigation tasks to complex drink delivery operations requiring careful movement control.</p>
+                </div>
+
+                <div class="content-section">
+                    <h1 id="implementation">7. System Implementation</h1>
+                    <h2 id="implementation-components">7.1 System Components</h2>
+                    <table class="latex-table">
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Function</th>
+                                <th>Key Features</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NovelPathPlanner</td>
+                                <td>Path optimization</td>
+                                <td>ADMM, cubic spline smoothing</td>
+                            </tr>
+                            <tr>
+                                <td>LQRController</td>
+                                <td>Glass stabilization</td>
+                                <td>State-space control, Riccati solution</td>
+                            </tr>
+                            <tr>
+                                <td>JuiceParticleSystem</td>
+                                <td>Liquid simulation</td>
+                                <td>Particle-based physics, damping</td>
+                            </tr>
+                            <tr>
+                                <td>ImageBasedObstacleDetection</td>
+                                <td>Obstacle detection</td>
+                                <td>Virtual camera, RGB/depth processing</td>
+                            </tr>
+                            <tr>
+                                <td>OrderManager</td>
+                                <td>Order processing</td>
+                                <td>JSON-based queue management</td>
+                            </tr>
+                            <tr>
+                                <td>RobotController</td>
+                                <td>Movement control</td>
+                                <td>Waypoint following, velocity control</td>
+                            </tr>
+                            <tr>
+                                <td>RobotBartenderStateMachine</td>
+                                <td>Workflow orchestration</td>
+                                <td>State transitions, event handling</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h2 id="implementation-environment">7.2 Simulation Environment</h2>
+                    <p>The PyBullet environment includes an R2D2-inspired robot, tables, obstacles, a juice counter, and a glass with dynamic juice simulation.</p>
+                    
+                    <h2 id="implementation-workflow">7.3 Operational Workflow</h2>
+                    <p>The workflow involves order parsing, path planning, glass filling, delivery, and return, orchestrated by the state machine.</p>
+                </div>
+
+                <div class="content-section">
+                    <h1 id="results">8. Results and Discussion</h1>
+                    <h2 id="results-performance">8.1 Performance Metrics</h2>
+                    <table class="latex-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Value</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Path Convergence Time</td>
+                                <td>0.12 s</td>
+                                <td>Average ADMM convergence time</td>
+                            </tr>
+                            <tr>
+                                <td>Maximum Tilt Angle</td>
+                                <td>0.3 rad</td>
+                                <td>Maximum glass tilt</td>
+                            </tr>
+                            <tr>
+                                <td>Delivery Success Rate</td>
+                                <td>98%</td>
+                                <td>Successful deliveries</td>
+                            </tr>
+                            <tr>
+                                <td>Obstacle Avoidance Rate</td>
+                                <td>100%</td>
+                                <td>Static obstacle avoidance</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h2 id="results-analysis">8.2 Qualitative Analysis</h2>
+                    <p>The system demonstrates smooth navigation, minimal spillage, and reliable order delivery, as shown in the simulation video.</p>
+                    <div class="video-container">
+                        <video controls>
+                            <source src="./assets/simulation/robot_serving_simulation.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    
+                    <h2 id="results-comparison">8.3 Comparative Evaluation</h2>
+                    <p>Compared to A* path planning, ADMM offers smoother trajectories with 20% reduced curvature. LQR outperforms PID control, reducing tilt by 15%.</p>
+                </div>
+
+                <div class="content-section">
+                    <h1 id="challenges">9. Challenges and Limitations</h1>
+                    <h2 id="challenges-technical">9.1 Technical Challenges</h2>
+                    <p>Real-time re-planning for dynamic obstacles and simplified liquid dynamics pose computational challenges.</p>
+                    
+                    <h2 id="challenges-practical">9.2 Practical Limitations</h2>
+                    <p>Wheel-based mobility and virtual camera limitations restrict real-world applicability.</p>
+                </div>
+
+                <div class="content-section">
+                    <h1 id="conclusion">10. Conclusion and Future Work</h1>
+                    <h2 id="conclusion-summary">10.1 Summary of Findings</h2>
+                    <p>
+                        The Autonomous Juice Delivery Robot project successfully delivers a robust robotic system tailored for automated beverage delivery within a simulated restaurant environment using PyBullet. By tackling the inefficiencies inherent in manual serving processes—such as elevated labor costs, operational delays, and inconsistent service quality—the system underscores the transformative impact of autonomous robotics in the service sector. Through the integration of an R2D2-inspired differential-drive robot, sophisticated algorithmic frameworks, and a user-focused order management interface, the project achieves a highly efficient and reliable solution for juice delivery, ensuring stability to prevent spillage.
+The system's implementation leverages several key components, each contributing to its overall efficacy:<br>
+<ol>
+    <li>ADMM-Based Path Planning: Utilizing an Alternating Direction Method of Multipliers (ADMM) planner with cubic spline smoothing, the system generates smooth, collision-free trajectories within a 10x10m workspace containing tables, a juice counter, and static cylindrical obstacles. It achieves collision-free navigation with only 15 path replans across waypoints, an average path smoothness of 0.0143 m, and a target accuracy of 0.1 m, ensuring precise and agile movement through cluttered spaces with a 0.25 m safety margin.</li>
+    <li>LQR Control for Stability: A Linear Quadratic Regulator (LQR) controller dynamically adjusts the robot's acceleration to minimize juice glass tilt to below 0.3 radians, using a state-space model that accounts for position, velocity, and tilt angles. This ensures spill-free transport, even during rapid maneuvers or sharp turns, validated by real-time feedback from the juice visualization system.</li>
+    <li>Juice Visualization System: Comprising a 30-particle system and a solid cylinder model, this component simulates liquid dynamics, responding to robot acceleration and providing visual confirmation of the LQR controller’s effectiveness, enhancing the simulation’s realism.</li>
+    <li>Finite State Machine: The RobotBartenderStateMachine orchestrates the delivery process through states like IDLE, MOVING_TO_JUICE, FILLING_GLASS, and DELIVERING_JUICE, employing robust error handling and timeout detection to ensure seamless task execution from order retrieval to glass placement.</li>
+    <li>Flask-Based Web Dashboard: Replacing manual inputs, the dashboard offers an intuitive interface for order placement and real-time monitoring, utilizing thread-safe JSON-based order management to support concurrent access and integrate seamlessly with the robot’s OrderManager.</li>
+</ol>
+
+The project demonstrates strong quantitative performance, achieving a 100% order delivery success rate and an average delivery time of 6.37 seconds, as presented in the final showcase. The simulation loop, running with a physics step of 1/240 s and control updates at 1/60 s, ensures real-time responsiveness, while built-in safety features such as collision detection, path replanning, and speed limits (1.5 m/s empty, 0.8 m/s loaded) contribute to reliable operation. However, limitations remain—static obstacle assumptions limit adaptability to dynamic environments, simplified juice physics could benefit from advanced fluid dynamics modelling, and the centralized architecture with file-based order handling (via data.json) raises scalability concerns. Additionally, the absence of an articulated robotic arm restricts precision in glass manipulation. Proposed improvements include integrating real-time obstacle detection, transitioning to database-driven order management, and incorporating a robotic arm to enhance functionality and support physical prototyping. Beyond technical achievements in autonomous navigation, control systems, and simulation-driven development, the project provides valuable insights into service robotics and presents potential for broader applications in fields like medical supply delivery or commercial transport. The Autonomous Juice Delivery Robot stands as a compelling example of how mechanical design, control theory, and interface development can converge to solve real-world service challenges and drive forward automation in dynamic, real-time environments.
+
+                    </p>  
+
+                    <h2 id="conclusion-future">10.2 Future Directions</h2>
+                    <p>Future enhancements to the robot bartender system can address current limitations and improve robustness. The <code>NovelPathPlanner</code> could integrate real-time sensor data beyond simulated obstacles, leveraging actual camera feeds in <code>ImageBasedObstacleDetection</code> for dynamic environments. Implementing machine learning for obstacle prediction, as suggested in prior discussions, could anticipate moving objects, enhancing ADMM’s adaptability. Optimizing parameters like <code>rho</code> via adaptive tuning could improve convergence speed, reducing computational load for real-time planning.</p>
+    <p>The <code>LQRController</code> assumes zero tilt angles, limiting its responsiveness to actual glass orientation. Incorporating real-time tilt sensors and updating the state vector with measured <code>θ_x, θ_y</code> would enhance stability, preventing spillage during sharp turns. Extending the model to include z-axis dynamics could address vertical vibrations, critical for uneven surfaces. The <code>JuiceParticleSystem</code> could simulate fluid dynamics more accurately using smoothed-particle hydrodynamics, improving visual realism and spill detection.</p>
+    <p>Enhancing the <code>RobotBartenderStateMachine</code> with error recovery states, such as handling failed deliveries or stuck navigation, would increase reliability. Integrating multi-robot coordination could scale the system for larger venues, requiring synchronized path planning. The <code>OrderManager</code> could support prioritized orders and real-time customer interfaces via a mobile app, streamlining operations. Finally, deploying the system on physical hardware with ROS integration would validate simulation results, addressing real-world uncertainties like sensor noise and actuator delays, ensuring robust juice delivery in dynamic settings.</p>
+                </div>
+
+                <div class="content-section">
+                  <h1 id="references">11. References</h1>
+                  <ul>
+                    <li>[1] J. Ramirez, C. Laurel, M. Tafur and M. Sigüenza, "Development and Implementation of a Robotic Bartender for Automatic Pisco Sour Preparation," 2024 10th International Conference on Mechatronics and Robotics Engineering (ICMRE), Milan, Italy, 2024, pp. 33-38, doi: <a href="https://doi.org/10.1109/ICMRE60776.2024.10532178">10.1109/ICMRE60776.2024.10532178</a></li>
+                  
+                    <li>[2] B. Pettis, "Barbot, the automated bartender," in IEEE Spectrum, vol. 46, no. 12, pp. 20-21, Dec. 2009, doi: <a href="https://doi.org/10.1109/MSPEC.2009.5340243">10.1109/MSPEC.2009.5340243</a></li>
+                  
+                    <li>[3] A. Tariverdi et al., "Reinforcement Learning-Based Switching Controller for a Milliscale Robot in a Constrained Environment," in IEEE Transactions on Automation Science and Engineering, vol. 21, no. 2, pp. 2000-2016, April 2024, doi: <a href="https://doi.org/10.1109/TASE.2023.3259905">10.1109/TASE.2023.3259905</a></li>
+                  
+                    <li>[4] R. Wang, Z. Zhang, W. Lu, H. Xiong and K. Lin, "Distributed Planning for Multi-Robot Path Planning via Workspace Decompsition," 2023 China Automation Congress (CAC), Chongqing, China, 2023, pp. 4599-4604, doi: <a href="https://doi.org/10.1109/CAC59555.2023.10450484">10.1109/CAC59555.2023.10450484</a></li>
+                  
+                    <li>[5] J. Dong, R. Liu, B. LU, X. Guo and H. Liu, "LQR-based Balance Control of Two-wheeled Legged Robot," 2022 41st Chinese Control Conference (CCC), Hefei, China, 2022, pp. 450-455, doi: <a href="https://doi.org/10.23919/CCC55666.2022.9902200">10.23919/CCC55666.2022.9902200</a></li>
+                  
+                    <li>[6] K. Yuan, "Intelligent Design and Verification of Aircraft Autonomous Obstacle Avoidance and Collision Avoidance System," 2024 IEEE 7th International Conference on Information Systems and Computer Aided Education (ICISCAE), Dalian, China, 2024, pp. 603-607, doi: <a href="https://doi.org/10.1109/ICISCAE62304.2024.10761571">10.1109/ICISCAE62304.2024.10761571</a></li>
+                  
+                    <li>[7] W. -C. Wu, T. -H. Wang and C. -T. Chiu, "Edge curve scaling and smoothing with cubic spline interpolation," 2013 IEEE International Conference on Image Processing, Melbourne, VIC, Australia, 2013, pp. 859-862, doi: <a href="https://doi.org/10.1109/ICIP.2013.6738177">10.1109/ICIP.2013.6738177</a></li>
+                  
+                    <li>[8] H. Zhang, S. Pu and Y. Sun, "Cooperative collision avoidance and obstacle avoidance path planning for multiple unmanned underwater vehicles," 2023 35th Chinese Control and Decision Conference (CCDC), Yichang, China, 2023, pp. 1734-1737</li>
+                  </ul>
+                  
+              </div>>
+
+                <div class="content-section">
+                    <h1 id="appendices">12. Appendices</h1>
+                    <h2 id="appendix-parameters">12.1 Simulation Parameters</h2>
+                    <table class="latex-table">
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Value</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>ADMM Rho</td>
+                                <td>1.5</td>
+                                <td>Penalty parameter</td>
+                            </tr>
+                            <tr>
+                                <td>LQR Q Matrix</td>
+                                <td>diag([2, 2, 200, 200, 2, 2, 20, 20])</td>
+                                <td>State weighting</td>
+                            </tr>
+                            <tr>
+                                <td>Particle Mass</td>
+                                <td>0.001 kg</td>
+                                <td>Juice particle mass</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                </div>
+
+                <div class="scroll-indicator">End of Report ↑</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="vlabs-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h3>Course Information</h3>
+                    <p>22MAT230: Mathematics for Computing</p>
+                    <p>22AIE214: Introduction to AI & Robotics</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <h3>Contact</h3>
+                    <p>Amrita Vishwa Vidyapeetham<br>Department of AI</p>
+                </div>
+            </div>
+            <div class="text-center py-4">
+                S4 Project | MFC Robotics Group | Submitted: April 19, 2025
+            </div>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register("sw.js").catch(err => {
+                console.log('Service Worker registration failed: ', err);
+            });
+        });
+      }
+      
+      document.querySelectorAll('.chapter-link, .subchapter-link, .subsubchapter-link').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            window.scrollTo({
+                top: targetElement.offsetTop - 90,
+                behavior: 'smooth'
+            });
+            
+            document.querySelectorAll('.chapter-link, .subchapter-link, .subsubchapter-link').forEach(link => link.classList.remove('active'));
+            this.classList.add('active');
+        });
+      });
+      
+      document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "\\[", right: "\\]", display: true},
+                {left: "$", right: "$", display: false},
+                {left: "\\(", right: "\\)", display: false}
+            ]
+        });
+      });
+      
+      /* Around line 844-856: Update the scroll event handling */
+window.addEventListener('scroll', () => {
+    const sidebar = document.querySelector('.sidebar-nav');
+    if (window.scrollY > 50) {
+        sidebar.style.boxShadow = '3px 0 12px rgba(0,0,0,0.12)';
+    } else {
+        sidebar.style.boxShadow = '3px 0 8px rgba(0,0,0,0.08)';
+    }
+    
+        // Add this to highlight the current section
+        document.querySelectorAll('h1, h2, h3').forEach(heading => {
+            const id = heading.getAttribute('id');
+            if (id) {
+                const rect = heading.getBoundingClientRect();
+                if (rect.top <= 100 && rect.bottom >= 100) {
+                    document.querySelectorAll('.chapter-link, .subchapter-link, .subsubchapter-link').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    const activeLink = document.querySelector(`a[href="#${id}"]`);
+                    if (activeLink) activeLink.classList.add('active');
+                }
+            }
+        });
+    });
+    </script>
+</body>
+</html>
